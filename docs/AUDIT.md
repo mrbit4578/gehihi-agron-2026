@@ -61,3 +61,9 @@ DevRelay Community Wisdom gateway không có callable tool trong phiên; không 
 - Dependency cuối: Fiber 3.4.0, req/v3 3.61.0, quic-go 0.61.0, uTLS 1.8.2, compress 1.19.2, x/net 0.60.0, x/crypto 0.57.0, x/text 0.42.0. Nâng HTTP client để tương thích API quic mới.
 - Source scan: giá trị workspace API_KEY local và các mẫu GitHub/Google/private key không xuất hiện trong file publish; ignore rules được kiểm tra.
 - HTTP local: `/`, `/styles.css`, `/app.js`, `/health`, `/status` đều trả 200.
+
+## Sửa build Vercel: phạm vi import internal
+
+Classic builder của Vercel đổi module root thành `handler` và import entrypoint qua `handler/api`. Entry `api/index.go` trước đây import trực tiếp `gemini-web-to-api/internal/commons/configs`, bị Go từ chối vì importer ở ngoài phạm vi internal của module gốc. Build Go thông thường và CI trước đó chưa mô phỏng phép đổi module này.
+
+Đã chuyển khởi tạo HTTP handler vào package công khai `pkg/serverless`; API entrypoint chỉ gọi package công khai đó. Cấu hình, auth và backend vẫn nằm trong internal của module gốc. Thêm `npm run check:vercel` vào CI để tạo module/entrypoint giống Vercel, dùng cùng đường import và build bootstrap Linux. Kiểm tra này thất bại với đúng lỗi trên bản cũ, rồi pass sau sửa; `go test ./...`, `go vet ./...`, Node syntax checks và web build cũng pass. Chưa thay thế việc xác nhận deployment thực tế trên Vercel.

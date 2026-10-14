@@ -18,6 +18,8 @@ Bạn tự triển khai bằng [Import repository](https://vercel.com/new/clone?
 
 `vercel.json` đã khai báo Go Function tại `api/index.go`, rewrites và thời gian tối đa 300 giây. Vercel hỗ trợ Go Functions trong thư mục `/api`; xem [tài liệu chính thức](https://vercel.com/docs/functions/runtimes/go).
 
+Entrypoint chỉ import package công khai `pkg/serverless`. Vercel viết lại module thành `handler`, vì vậy `api/index.go` không được import trực tiếp các package `gemini-web-to-api/internal/*`. `npm run check:vercel` mô phỏng module/entrypoint Vercel tạo và compile bootstrap Linux; bước này cũng chạy trong CI.
+
 Thêm biến môi trường vào **Production** (và **Preview** nếu cần):
 
 | Biến | Vai trò |
@@ -95,6 +97,7 @@ npm run build
 go test ./...
 go vet ./...
 go build ./...
+npm run check:vercel
 go run golang.org/x/vuln/cmd/govulncheck@v1.9.0 ./...
 ```
 

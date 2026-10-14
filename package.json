@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build-web.mjs",
-    "check": "node --check internal/server/static/web/app.js && node --check scripts/build-web.mjs",
+    "check": "node --check internal/server/static/web/app.js && node --check scripts/build-web.mjs && node --check scripts/check-vercel-go.mjs",
+    "check:vercel": "node scripts/check-vercel-go.mjs",
     "dev": "go run ./cmd/server",
     "test": "go test ./...",
     "deploy": "npx vercel@64.0.2 --prod --scope mrbit4578-4403s-projects"
