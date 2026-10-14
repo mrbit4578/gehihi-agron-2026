@@ -88,6 +88,14 @@ Setup cập nhật cả đường dẫn cấu hình của IDE cũ `~/.gemini/ant
 
 `node integrations/antigravity/check-connection.mjs --status-only` chỉ kiểm tra handshake MCP và `/status`, chưa xác thực khóa workspace. `node integrations/antigravity/check-connection.mjs --chat` gửi một tin nhắn thật bằng `gemini-4-argon` nếu model này có trong danh sách, sử dụng quota provider. Có thể chọn model khác bằng biến `GEHIHI_MODEL` đúng ID khả dụng. Thay domain bằng `GEHIHI_BASE_URL` nếu cần; mặc định là `https://gehihi-agron-2026-one.vercel.app/openai/v1`. Kiểm tra bảo mật và giao thức bằng `npm test --prefix integrations/antigravity` (backend giả lập, không gọi tài khoản thật).
 
+### Argon làm model chính qua Antigravity CLI
+
+Sau khi cài [CLI chính thức cho Windows](https://antigravity.google/docs/cli/install), chạy `node integrations/antigravity/run-agy.mjs --setup` để tạo profile terminal **Gehihi Argon** trong IDE. Mở profile này hoặc chạy `node integrations/antigravity/run-agy.mjs` tại gốc dự án. Launcher xác thực danh sách model thật trước khi khởi chạy, dùng API_KEY local làm `GEMINI_API_KEY` và trỏ `GOOGLE_GEMINI_BASE_URL` tới API `/gemini` của web. Cookie không được chuyển vào process CLI; khóa không được ghi vào settings. Cấu hình model tùy chỉnh giữ nguyên các model và thiết lập khác.
+
+Mặc định launcher tìm `agy.exe` tại `%LOCALAPPDATA%/agy/bin/agy.exe`; dùng `GEHIHI_AGY_PATH` nếu đã cài ở nơi khác. Với server riêng, đặt cả `GEHIHI_BASE_URL` cho preflight OpenAI và `GEHIHI_GEMINI_BASE_URL` cho endpoint Gemini. Provider gateway chỉ có API OpenAI sẽ không dùng được chế độ Gemini của CLI này. Chỉ chọn `GEHIHI_MODEL` là ID thật có trong danh sách provider. Luồng CLI được kiểm tra bằng agy 1.3.5 với API giả lập; phiên tài khoản thật cần khởi tạo Gemini thành công trên server.
+
+Nếu API trả `session_login_required`, khóa workspace đã được chấp nhận nhưng Google trả trang đăng nhập. Kiểm tra Cookie đầy đủ và slot của cùng request. Khi cấu hình mới vẫn lỗi, thử backend local với cùng Cookie để phân biệt phiên tài khoản với vấn đề môi trường Vercel; không suy ra Cookie hết hạn từ mã lỗi này.
+
 ## API
 
 - `GET /health`: server đang hoạt động, không đồng nghĩa provider đã xác thực.

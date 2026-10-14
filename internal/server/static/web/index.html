@@ -716,6 +716,51 @@ npm run check --prefix integrations/antigravity</pre
             vẫn do ứng dụng quản lý. Quyền truy cập Argon trên web được kiểm tra
             riêng qua danh sách model và phản hồi provider.
           </p>
+          <h3>Chọn Argon làm model chính trong Antigravity CLI</h3>
+          <p>
+            Theo Google, Argon chưa có trong danh sách model của Antigravity
+            IDE. Bạn có thể mở Antigravity CLI ngay trong terminal của IDE và
+            cho CLI gọi model từ Gehihi.
+            <a href="https://antigravity.google/docs/ide/overview"
+              target="_blank" rel="noopener noreferrer">Khả năng của IDE ↗</a>
+          </p>
+          <div class="integration-flow" aria-label="Antigravity CLI gọi API Gemini của Gehihi rồi gọi model Argon được tài khoản cấp quyền">
+            <span>Antigravity CLI</span><b aria-hidden="true">→</b>
+            <span>API Gemini của Gehihi</span><b aria-hidden="true">→</b>
+            <span>Argon của tài khoản</span>
+          </div>
+          <ol>
+            <li>
+              Cài <code>agy</code> cho Windows theo
+              <a href="https://antigravity.google/docs/cli/install"
+                target="_blank" rel="noopener noreferrer">hướng dẫn CLI chính thức ↗</a>.
+              Trên máy đã cài, bỏ qua bước này.
+            </li>
+            <li>
+              Tại gốc dự án, chạy
+              <code>node integrations/antigravity/run-agy.mjs --setup</code>.
+              Script đăng ký model tùy chỉnh và tạo profile terminal
+              <strong>Gehihi Argon</strong>. Khóa được đọc từ
+              <code>.env.local</code>, không lưu vào settings của CLI.
+            </li>
+            <li>
+              Trong IDE, mở menu cạnh dấu <strong>+</strong> ở Terminal,
+              chọn <strong>Gehihi Argon</strong>. Hoặc chạy trực tiếp
+              <code>node integrations/antigravity/run-agy.mjs</code>.
+              Launcher kiểm tra khóa và danh sách model trước khi mở phiên;
+              nếu Argon chưa được provider cấp quyền, bạn sẽ thấy lý do.
+            </li>
+            <li>
+              Gửi câu đầu tiên: “Xin chào, trả lời một câu bằng tiếng Việt.”
+              Chờ nội dung phản hồi để xác nhận phiên thật đã chạy.
+              Dùng <code>/exit</code> để đóng phiên.
+            </li>
+          </ol>
+          <p class="guide-note">
+            Web và CLI cùng dùng phiên provider trên server. Nếu web báo lỗi
+            đăng nhập Gemini, cần sửa phiên đó trước. Profile terminal không
+            thay đổi danh sách model trong panel agent của IDE.
+          </p>
           <p>
             Nếu kiểm tra trả 401, cập nhật <code>API_KEY</code> local để trùng
             khóa Production trên Vercel. Cầu nối đọc khóa mới mỗi lần gọi; không
@@ -761,6 +806,23 @@ npm run check --prefix integrations/antigravity</pre
               lấy từ cùng tab Gemini đang đăng nhập và còn hiệu lực. Nếu đã hết
               hạn, lấy header mới, cập nhật Vercel và redeploy. Với gateway,
               kiểm tra URL HTTPS và khóa upstream.
+            </p>
+          </details>
+          <details class="guide-details">
+            <summary>session_login_required · Google chuyển server về trang đăng nhập</summary>
+            <p>
+              Khóa workspace đã đúng. Kiểm tra giá trị
+              <code>GEMINI_COOKIES</code> là toàn bộ Cookie request header,
+              không kèm chữ <code>Cookie:</code> và không phải khóa AI Studio.
+              Slot <code>GEMINI_AUTH_USER</code> phải thuộc cùng request.
+              Cấu hình Production cần áp dụng vào một bản deploy mới.
+            </p>
+            <p>
+              Nếu đã thay Cookie và redeploy mà vẫn lỗi, thử cùng cấu hình
+              bằng backend local để đối chiếu. Local cũng lỗi thì kiểm tra
+              phiên và slot; local chạy được nhưng Vercel lỗi thì kiểm tra
+              môi trường server và phản hồi Google. Chưa thể kết luận do
+              Cookie hết hạn chỉ từ mã lỗi này.
             </p>
           </details>
           <details class="guide-details">

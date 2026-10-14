@@ -10,6 +10,8 @@
     "start": "node server.mjs",
     "setup": "node install.mjs",
     "check": "node check-connection.mjs",
+    "setup:cli": "node run-agy.mjs --setup",
+    "cli": "node run-agy.mjs",
     "test": "node --test tests/*.test.mjs"
   },
   "dependencies": {

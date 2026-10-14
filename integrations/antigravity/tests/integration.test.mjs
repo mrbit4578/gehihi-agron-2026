@@ -10,6 +10,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { createClient, validateBaseURL } from "../client.mjs";
 import { install } from "../install.mjs";
+import { configureCLI, verifyModel } from "../run-agy.mjs";
 
 async function fixture(t) {
   const scratch = await mkdtemp(path.join(tmpdir(), "gehihi-mcp-test-"));
@@ -28,6 +29,7 @@ async function fixture(t) {
   );
   const calls = [];
   let rejectAuth = false;
+  let rejectProvider = false;
   const http = createServer(async (req, res) => {
     let body = "";
     for await (const chunk of req) body += chunk;
@@ -53,6 +55,11 @@ async function fixture(t) {
     ) {
       res.writeHead(401);
       res.end(JSON.stringify({ error: "upstream echoed local-test-secret" }));
+      return;
+    }
+    if (rejectProvider) {
+      res.writeHead(503);
+      res.end(JSON.stringify({ error: { type: "provider_unavailable", code: "session_login_required", message: "must not echo local-test-secret" } }));
       return;
     }
     if (req.url === "/openai/v1/models")
@@ -93,6 +100,7 @@ async function fixture(t) {
     rejectAuth() {
       rejectAuth = true;
     },
+    rejectProvider() { rejectProvider = true; },
   };
 }
 
@@ -211,4 +219,44 @@ test("endpoint validation rejects insecure remote URLs and embedded credentials"
     validateBaseURL("https://example.com/openai/v1/"),
     "https://example.com/openai/v1",
   );
+});
+
+test("CLI configuration preserves other models and terminal profiles without storing keys", async (t) => {
+  const f = await fixture(t);
+  const settings = path.join(f.scratch, ".gemini", "antigravity-cli", "settings.json");
+  const editor = path.join(f.scratch, ".vscode", "settings.json");
+  await mkdir(path.dirname(settings), { recursive: true });
+  await mkdir(path.dirname(editor), { recursive: true });
+  await writeFile(settings, '// keep comment\n{"colorScheme":"dark","customModelsConfig":{"customModels":{"existing":{"modelName":"keep-model"}}}}');
+  await writeFile(editor, '{"terminal.integrated.profiles.windows":{"PowerShell":{"path":"pwsh.exe"}}}');
+  await configureCLI({ home: f.scratch, root: f.scratch, setup: true });
+  const updated = await readFile(settings, "utf8");
+  const config = parse(updated);
+  assert.ok(updated.includes("// keep comment"));
+  assert.equal(config.colorScheme, "dark");
+  assert.equal(config.modelProvider, "gemini");
+  assert.equal(config.customModelsConfig.customModels.existing.modelName, "keep-model");
+  assert.equal(config.customModelsConfig.customModels["gemini-4-argon"].modelName, "gemini-4-argon");
+  const terminals = parse(await readFile(editor, "utf8"))["terminal.integrated.profiles.windows"];
+  assert.equal(terminals.PowerShell.path, "pwsh.exe");
+  assert.ok(terminals["Gehihi Argon"].args[0].endsWith("run-agy.mjs"));
+  assert.ok(!updated.includes("local-test-secret"));
+  await writeFile(editor, "invalid-json");
+  await assert.rejects(configureCLI({ home: f.scratch, root: f.scratch, setup: true, model: "another" }), /JSONC/);
+  assert.equal(await readFile(settings, "utf8"), updated);
+});
+
+test("CLI preflight uses authenticated provider models and refuses unavailable models", async (t) => {
+  const f = await fixture(t);
+  const client = createClient(f);
+  await verifyModel({ client });
+  assert.equal(f.calls.at(-1).headers.authorization, "Bearer local-test-secret");
+  await assert.rejects(verifyModel({ client, model: "made-up-argon" }), /chưa cấp model/);
+  assert.equal(f.calls.filter(call => call.body).length, 0);
+  f.rejectProvider();
+  await assert.rejects(verifyModel({ client }), error =>
+    /Google chuyển phiên Gemini về đăng nhập/.test(error.message) &&
+    !error.message.includes("local-test-secret"));
+  f.rejectAuth();
+  await assert.rejects(verifyModel({ client }), /API_KEY local/);
 });

@@ -98,6 +98,70 @@ func TestGeminiBuildPrompt(t *testing.T) {
 	})
 }
 
+func TestAntigravityGeminiToolWireFormat(t *testing.T) {
+	// The Google GenAI SDK used by agy sends camelCase tool declarations and turns.
+	var req dto.GeminiGenerateRequest
+	err := json.Unmarshal([]byte(`{
+	  "systemInstruction":{"parts":[{"text":"Use tools when needed."}]},
+	  "tools":[{"functionDeclarations":[{"name":"read_file","parameters":{"type":"object"}}]}],
+	  "toolConfig":{"functionCallingConfig":{"mode":"AUTO"}},
+	  "contents":[
+	    {"role":"user","parts":[{"text":"Read the file."}]},
+	    {"role":"model","parts":[{"functionCall":{"name":"read_file","args":{"path":"hello.txt"}}}]},
+	    {"role":"user","parts":[{"functionResponse":{"name":"read_file","response":{"content":"file content"}}}]}
+	  ]
+	}`), &req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(req.Tools) != 1 || len(req.Tools[0].FunctionDeclarations) != 1 {
+		t.Fatal("SDK function declarations were lost")
+	}
+	if req.ToolConfig == nil || req.ToolConfig.FunctionCallingConfig == nil || req.ToolConfig.FunctionCallingConfig.Mode != "AUTO" {
+		t.Fatal("SDK tool config was lost")
+	}
+	service := &GeminiService{log: zap.NewNop()}
+	prompt, _, err := service.buildPrompt(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{"Use tools when needed.", "Available tools:", "read_file", "Model function call:", "hello.txt", "Tool result:", "file content"} {
+		if !strings.Contains(prompt, want) {
+			t.Fatalf("tool conversation lost %q", want)
+		}
+	}
+	calls, text := service.parseToolBridgeOutput(req, `{"status":"call","tool_calls":[{"name":"read_file","arguments":{"path":"hello.txt"}}]}`)
+	if len(calls) != 1 || text != "" {
+		t.Fatal("tool output did not decode")
+	}
+	encoded, err := json.Marshal(dto.GeminiGenerateResponse{Candidates: []dto.Candidate{{Content: dto.Content{Role: "model", Parts: []dto.Part{{FunctionCall: &calls[0]}}}}}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var sdkResponse struct {
+		Candidates []struct {
+			Content struct {
+				Parts []struct {
+					FunctionCall *dto.FunctionCall `json:"functionCall"`
+				} `json:"parts"`
+			} `json:"content"`
+		} `json:"candidates"`
+	}
+	if err := json.Unmarshal(encoded, &sdkResponse); err != nil {
+		t.Fatal(err)
+	}
+	if sdkResponse.Candidates[0].Content.Parts[0].FunctionCall == nil {
+		t.Fatal("tool response must be readable by the SDK's camelCase decoder")
+	}
+	var legacy dto.GeminiGenerateRequest
+	if err := json.Unmarshal([]byte(`{"tools":[{"function_declarations":[{"name":"legacy"}]}],"contents":[{"parts":[{"function_response":{"name":"legacy","response":{}}}]}]}`), &legacy); err != nil {
+		t.Fatal(err)
+	}
+	if len(legacy.Tools[0].FunctionDeclarations) != 1 || legacy.Contents[0].Parts[0].FunctionResponse == nil {
+		t.Fatal("legacy snake_case input must remain accepted")
+	}
+}
+
 func TestVideoOperationMatchesGoogleGenAI(t *testing.T) {
 	var gotAspect providers.VideoAspectRatio
 	client := providers.NewVideoTestClient([]providers.ModelInfo{{ID: "gemini-pro"}},

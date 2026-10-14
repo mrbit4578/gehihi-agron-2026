@@ -299,20 +299,28 @@ async function refreshStatus() {
       data.provider === "openai-compatible" ? "Gateway API" : "Gemini Web";
     if (!state.connected) {
       const configured = data.api_key_configured && data.provider_configured;
-      $("sidebar-status").textContent = configured
+      $("sidebar-status").textContent = state.workspaceAuthenticated
+        ? "Khóa đúng · Chờ Gemini"
+        : configured
         ? "Chờ xác thực"
         : "Cần cấu hình";
-      $("header-status").lastChild.textContent = configured
+      $("header-status").lastChild.textContent = state.workspaceAuthenticated
+        ? " Chờ phiên Gemini"
+        : configured
         ? " Chờ xác thực"
         : " Cần cấu hình";
-      $("setup-text").textContent = configured
-        ? "Server đã sẵn sàng. Kết nối bằng khóa truy cập để bắt đầu."
+      $("setup-text").textContent = state.workspaceAuthenticated
+        ? "Khóa workspace đã đúng. Mở hướng dẫn để xử lý phiên Gemini trên server."
+        : configured
+        ? "Server đã cấu hình. Kết nối bằng khóa truy cập để kiểm tra phiên Gemini."
         : !data.api_key_configured
           ? "Server chưa cấu hình API_KEY. Mở hướng dẫn để thêm khóa trên Vercel và redeploy."
           : "Server chưa cấu hình provider. Mở hướng dẫn để kết nối Gemini và redeploy.";
     }
     $("system-session").textContent = state.connected
       ? "Đã kết nối"
+      : state.workspaceAuthenticated
+      ? "Chờ phiên Gemini"
       : "Chưa xác thực";
   } catch {
     state.status = null;

@@ -149,6 +149,25 @@ func (s *GeminiService) buildPrompt(req dto.GeminiGenerateRequest) (string, []pr
 		}
 
 		for i, part := range content.Parts {
+			// Preserve tool turns when translating the SDK conversation to Gemini Web.
+			if part.FunctionCall != nil {
+				encoded, err := json.Marshal(part.FunctionCall)
+				if err != nil {
+					return "", nil, fmt.Errorf("encode function call: %w", err)
+				}
+				promptBuilder.WriteString("Model function call: ")
+				promptBuilder.Write(encoded)
+				promptBuilder.WriteString("\n")
+			}
+			if part.FunctionResponse != nil {
+				encoded, err := json.Marshal(part.FunctionResponse)
+				if err != nil {
+					return "", nil, fmt.Errorf("encode function response: %w", err)
+				}
+				promptBuilder.WriteString("Tool result: ")
+				promptBuilder.Write(encoded)
+				promptBuilder.WriteString("\n")
+			}
 			if part.Text != "" {
 				if rolePrefix != "" {
 					promptBuilder.WriteString(rolePrefix)

@@ -30,7 +30,8 @@ func (r *GeminiGenerateRequest) UnmarshalJSON(data []byte) error {
 	type alias GeminiGenerateRequest
 	var raw struct {
 		alias
-		SystemInstructionCamel *Content `json:"systemInstruction"`
+		SystemInstructionCamel *Content    `json:"systemInstruction"`
+		ToolConfigCamel        *ToolConfig `json:"toolConfig"`
 	}
 	if err := json.Unmarshal(data, &raw); err != nil {
 		return err
@@ -38,6 +39,9 @@ func (r *GeminiGenerateRequest) UnmarshalJSON(data []byte) error {
 	*r = GeminiGenerateRequest(raw.alias)
 	if r.SystemInstruction == nil && raw.SystemInstructionCamel != nil {
 		r.SystemInstruction = raw.SystemInstructionCamel
+	}
+	if r.ToolConfig == nil {
+		r.ToolConfig = raw.ToolConfigCamel
 	}
 	return nil
 }
@@ -52,10 +56,10 @@ type Content struct {
 type Part struct {
 	Text             string            `json:"text,omitempty"`
 	Thought          bool              `json:"thought,omitempty"`
-	InlineData       *InlineData       `json:"inline_data,omitempty"`
-	FileData         *FileData         `json:"file_data,omitempty"`
-	FunctionCall     *FunctionCall     `json:"function_call,omitempty"`
-	FunctionResponse *FunctionResponse `json:"function_response,omitempty"`
+	InlineData       *InlineData       `json:"inlineData,omitempty"`
+	FileData         *FileData         `json:"fileData,omitempty"`
+	FunctionCall     *FunctionCall     `json:"functionCall,omitempty"`
+	FunctionResponse *FunctionResponse `json:"functionResponse,omitempty"`
 }
 
 func (p *Part) UnmarshalJSON(data []byte) error {
@@ -112,6 +116,22 @@ type Tool struct {
 	FunctionDeclarations []FunctionDeclaration `json:"function_declarations,omitempty"`
 }
 
+func (t *Tool) UnmarshalJSON(data []byte) error {
+	type alias Tool
+	var raw struct {
+		alias
+		Camel []FunctionDeclaration `json:"functionDeclarations"`
+	}
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+	*t = Tool(raw.alias)
+	if t.FunctionDeclarations == nil {
+		t.FunctionDeclarations = raw.Camel
+	}
+	return nil
+}
+
 // FunctionDeclaration represents a function schema
 type FunctionDeclaration struct {
 	Name        string          `json:"name"`
@@ -122,6 +142,22 @@ type FunctionDeclaration struct {
 // ToolConfig represents configuration for tool use
 type ToolConfig struct {
 	FunctionCallingConfig *FunctionCallingConfig `json:"function_calling_config,omitempty"`
+}
+
+func (t *ToolConfig) UnmarshalJSON(data []byte) error {
+	type alias ToolConfig
+	var raw struct {
+		alias
+		Camel *FunctionCallingConfig `json:"functionCallingConfig"`
+	}
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+	*t = ToolConfig(raw.alias)
+	if t.FunctionCallingConfig == nil {
+		t.FunctionCallingConfig = raw.Camel
+	}
+	return nil
 }
 
 // FunctionCallingConfig represents configuration for function calling
