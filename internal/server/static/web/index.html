@@ -447,25 +447,41 @@
                 </li>
                 <li>
                   Nhấn <kbd>F12</kbd> hoặc <kbd>Ctrl</kbd> + <kbd>Shift</kbd> +
-                  <kbd>I</kbd>. Chọn tab <strong>Network</strong>, rồi gửi một
-                  tin nhắn ngắn trên Gemini để xuất hiện request mới.
+                  <kbd>I</kbd>. Chọn tab <strong>Network → All</strong> và để
+                  nút ghi request ở trạng thái bật (chấm đỏ). Giữ DevTools mở,
+                  rồi nhấn <kbd>Ctrl</kbd> + <kbd>R</kbd> để ghi các request khi
+                  Gemini tải lại.
                 </li>
                 <li>
-                  Lọc <code>batchexecute</code>. Chọn request có
+                  Nhập <code>batchexecute</code> vào ô <strong>Filter</strong>.
+                  Chọn request có
                   <code>rpcids=otAQ7b</code>, mở
                   <strong>Headers → Request Headers → Cookie</strong>.
+                  Nếu chưa thấy request, tải lại trang khi Network vẫn mở.
                 </li>
                 <li>
                   Sao chép toàn bộ <em>giá trị</em> Cookie vào
                   <code>GEMINI_COOKIES</code> ở Vercel, không kèm chữ
                   <code>Cookie:</code>. Header cần chứa cả
                   <code>__Secure-1PSID</code> và <code>__Secure-1PSIDTS</code>.
+                  Chọn phần giá trị rồi nhấn <kbd>Ctrl</kbd> + <kbd>C</kbd>;
+                  không lấy <code>Set-Cookie</code> ở Response Headers.
                 </li>
                 <li>
                   Xem <strong>Request URL</strong> của cùng request để điền
                   <code>GEMINI_AUTH_USER</code> nếu có slot, rồi lưu các biến.
+                  Ví dụ URL có <code>/u/2/</code> thì điền <code>2</code>;
+                  không có slot thì bỏ trống. Cookie và slot phải thuộc cùng
+                  tab tài khoản.
                 </li>
               </ol>
+              <p>
+                Nếu không thấy Cookie hoặc chỉ thấy “Provisional headers”,
+                bật <strong>Disable cache</strong> trong Network rồi tải lại
+                trang. Bạn cũng có thể gửi một tin nhắn ngắn trên Gemini và
+                xem Request Headers của request gửi đến
+                <code>gemini.google.com</code> có đủ hai cookie yêu cầu.
+              </p>
               <p class="guide-note">
                 Cookie chỉ lưu phía server. Không dán cookie vào hộp kết nối
                 web, chat, GitHub hoặc ảnh chụp chia sẻ.
