@@ -72,6 +72,22 @@ Mở `http://127.0.0.1:4981`. `API_KEY` trong `.env.local` là khóa workspace, 
 
 Để cấu hình Gemini Web: đăng nhập `gemini.google.com`, mở DevTools → Network, chọn request `batchexecute?rpcids=otAQ7b` và sao chép **Cookie request header** vào `GEMINI_COOKIES` trong `.env.local`. Điền slot từ cùng request vào `GEMINI_AUTH_USER`. Cookie có thể hết hạn hoặc bị Google từ chối; model được giới hạn theo tài khoản. `.env.local`, `.cookies/`, `.vercel/` và build artifacts đều được loại khỏi Git và gói deploy.
 
+## Đấu nối Antigravity trên máy
+
+Web có hướng dẫn tại `/#guide-antigravity` và phần **Kết nối API → Đấu nối Antigravity trên máy**. Cầu nối MCP local cho Antigravity gọi API web qua ba công cụ `gehihi_status`, `gehihi_models`, `gehihi_chat`. Model chính của agent Antigravity vẫn do ứng dụng quản lý; lời gọi `gehihi_chat` dùng model thật được provider của web cấp quyền.
+
+Trong thư mục dự án, cập nhật riêng `API_KEY` trong `.env.local` bằng khóa Production của web, rồi chạy:
+
+```powershell
+npm ci --prefix integrations/antigravity
+npm run setup --prefix integrations/antigravity
+npm run check --prefix integrations/antigravity
+```
+
+Setup cập nhật cả đường dẫn cấu hình của IDE cũ `~/.gemini/antigravity/mcp_config.json` và đường dẫn hiện tại `~/.gemini/config/mcp_config.json`, giữ các MCP server khác và sao lưu file có nội dung trước khi sửa. Cấu hình chỉ chứa đường dẫn `.env.local`; Cookie tiếp tục ở Vercel và khóa không được ghi vào MCP config. Làm mới MCP Servers trong Antigravity để tải server `gehihi`. Xem [tài liệu MCP của Google](https://antigravity.google/docs/mcp?tab=ide).
+
+`node integrations/antigravity/check-connection.mjs --status-only` chỉ kiểm tra handshake MCP và `/status`, chưa xác thực khóa workspace. `node integrations/antigravity/check-connection.mjs --chat` gửi một tin nhắn thật bằng `gemini-4-argon` nếu model này có trong danh sách, sử dụng quota provider. Có thể chọn model khác bằng biến `GEHIHI_MODEL` đúng ID khả dụng. Thay domain bằng `GEHIHI_BASE_URL` nếu cần; mặc định là `https://gehihi-agron-2026-one.vercel.app/openai/v1`. Kiểm tra bảo mật và giao thức bằng `npm test --prefix integrations/antigravity` (backend giả lập, không gọi tài khoản thật).
+
 ## API
 
 - `GET /health`: server đang hoạt động, không đồng nghĩa provider đã xác thực.

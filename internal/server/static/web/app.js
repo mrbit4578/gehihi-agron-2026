@@ -45,6 +45,7 @@ const guideTargets = new Set([
   "guide-deploy",
   "guide-models",
   "guide-chat",
+  "guide-antigravity",
 ]);
 function showGuide(target = "guide") {
   if ($("settings-dialog").open) $("settings-dialog").close();
@@ -610,6 +611,9 @@ $("copy-curl").addEventListener("click", () =>
 );
 $("copy-first-prompt").addEventListener("click", () =>
   copy($("first-prompt").textContent.trim()),
+);
+$("copy-antigravity-commands").addEventListener("click", () =>
+  copy($("antigravity-commands").textContent),
 );
 $("refresh-status").addEventListener("click", refreshStatus);
 document.querySelectorAll("[data-refresh-status]").forEach((el) =>

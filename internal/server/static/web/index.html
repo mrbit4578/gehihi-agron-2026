@@ -247,6 +247,49 @@
             </button>
           </article>
         </div>
+        <article class="api-card antigravity-card">
+          <span class="eyebrow">DESKTOP CONNECTION</span>
+          <h2>Đấu nối Antigravity trên máy</h2>
+          <p>
+            Cầu nối MCP cho Antigravity gọi model từ API web này. Ba công cụ:
+            <code>gehihi_status</code>, <code>gehihi_models</code> và
+            <code>gehihi_chat</code>.
+          </p>
+          <div
+            class="integration-flow"
+            aria-label="Antigravity gọi cầu nối MCP trên máy, cầu nối gọi API web, API gọi Gemini"
+          >
+            <span>Antigravity</span><b aria-hidden="true">→</b
+            ><span>MCP trên máy</span><b aria-hidden="true">→</b
+            ><span>API web</span><b aria-hidden="true">→</b><span>Gemini</span>
+          </div>
+          <p>
+            Chạy các lệnh sau trong thư mục dự án đã tải từ GitHub. Điền cùng
+            <code>API_KEY</code> đang dùng trên web vào
+            <code>.env.local</code> trên máy trước khi kiểm tra. Cookie tiếp tục
+            nằm trên server.
+          </p>
+          <pre id="antigravity-commands">
+npm ci --prefix integrations/antigravity
+npm run setup --prefix integrations/antigravity
+npm run check --prefix integrations/antigravity</pre
+          >
+          <div class="guide-actions">
+            <button class="quiet-button" id="copy-antigravity-commands">
+              Sao chép lệnh cài đặt</button
+            ><button
+              class="primary-button"
+              data-guide-target="guide-antigravity"
+            >
+              Xem hướng dẫn Antigravity ↗
+            </button>
+          </div>
+          <p>
+            Trong Antigravity, mở MCP Servers và Refresh để tải công cụ. MCP gọi
+            model web khi dùng <code>gehihi_chat</code>; model chính của agent
+            vẫn do Antigravity quản lý.
+          </p>
+        </article>
         <div class="section-heading">
           <h2>Trạng thái hệ thống</h2>
           <button id="refresh-status" class="quiet-button">
@@ -454,10 +497,9 @@
                 </li>
                 <li>
                   Nhập <code>batchexecute</code> vào ô <strong>Filter</strong>.
-                  Chọn request có
-                  <code>rpcids=otAQ7b</code>, mở
-                  <strong>Headers → Request Headers → Cookie</strong>.
-                  Nếu chưa thấy request, tải lại trang khi Network vẫn mở.
+                  Chọn request có <code>rpcids=otAQ7b</code>, mở
+                  <strong>Headers → Request Headers → Cookie</strong>. Nếu chưa
+                  thấy request, tải lại trang khi Network vẫn mở.
                 </li>
                 <li>
                   Sao chép toàn bộ <em>giá trị</em> Cookie vào
@@ -470,17 +512,17 @@
                 <li>
                   Xem <strong>Request URL</strong> của cùng request để điền
                   <code>GEMINI_AUTH_USER</code> nếu có slot, rồi lưu các biến.
-                  Ví dụ URL có <code>/u/2/</code> thì điền <code>2</code>;
-                  không có slot thì bỏ trống. Cookie và slot phải thuộc cùng
-                  tab tài khoản.
+                  Ví dụ URL có <code>/u/2/</code> thì điền <code>2</code>; không
+                  có slot thì bỏ trống. Cookie và slot phải thuộc cùng tab tài
+                  khoản.
                 </li>
               </ol>
               <p>
-                Nếu không thấy Cookie hoặc chỉ thấy “Provisional headers”,
-                bật <strong>Disable cache</strong> trong Network rồi tải lại
-                trang. Bạn cũng có thể gửi một tin nhắn ngắn trên Gemini và
-                xem Request Headers của request gửi đến
-                <code>gemini.google.com</code> có đủ hai cookie yêu cầu.
+                Nếu không thấy Cookie hoặc chỉ thấy “Provisional headers”, bật
+                <strong>Disable cache</strong> trong Network rồi tải lại trang.
+                Bạn cũng có thể gửi một tin nhắn ngắn trên Gemini và xem Request
+                Headers của request gửi đến <code>gemini.google.com</code> có đủ
+                hai cookie yêu cầu.
               </p>
               <p class="guide-note">
                 Cookie chỉ lưu phía server. Không dán cookie vào hộp kết nối
@@ -607,6 +649,88 @@
             </p>
           </article>
         </div>
+        <article
+          class="guide-step antigravity-card"
+          id="guide-antigravity"
+          tabindex="-1"
+        >
+          <div class="guide-step-heading">
+            <span class="step-number">AG</span>
+            <div>
+              <span class="eyebrow">ĐẤU NỐI ỨNG DỤNG ĐÃ CÀI</span>
+              <h2>Dùng model web trong Antigravity qua MCP</h2>
+            </div>
+          </div>
+          <p>
+            Antigravity IDE hỗ trợ công cụ MCP. Cầu nối
+            <strong>gehihi</strong> chạy trên máy và gọi API HTTPS của web;
+            không cần mở port máy ra internet hoặc chuyển Cookie Google về máy.
+          </p>
+          <ol>
+            <li>
+              Tải hoặc cập nhật repository
+              <a
+                href="https://github.com/mrbit4578/gehihi-agron-2026"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Gehihi trên GitHub ↗</a
+              >. Máy cần Node.js 22 trở lên.
+            </li>
+            <li>
+              Mở <code>.env.local</code> ở gốc dự án, điền
+              <code>API_KEY</code> bằng đúng khóa workspace bạn vừa kết nối trên
+              web. Đây là khóa riêng của web.
+            </li>
+            <li>
+              Mở terminal tại gốc dự án. Chạy
+              <code>npm ci --prefix integrations/antigravity</code>, rồi
+              <code>npm run setup --prefix integrations/antigravity</code>.
+              Script tự ghi đường dẫn Node và cầu nối vào cấu hình MCP trên máy,
+              giữ các server khác và sao lưu file cũ có nội dung.
+            </li>
+            <li>
+              Chạy <code>npm run check --prefix integrations/antigravity</code>.
+              Khi nhận <code>workspace_authenticated: true</code> cùng danh sách
+              model thật, kết nối API đã qua xác thực.
+            </li>
+            <li>
+              Mở Antigravity → dấu <strong>…</strong> trên panel agent →
+              <strong>MCP Servers → Manage MCP Servers</strong> →
+              <strong>Refresh</strong>. Tìm server <code>gehihi</code> và ba
+              công cụ bên dưới. Nếu phiên đang mở chưa nhận cấu hình mới, dùng
+              lệnh <strong>Developer: Reload Window</strong> từ Command Palette.
+            </li>
+            <li>
+              Gửi câu yêu cầu mẫu bên dưới trong Antigravity. Chỉ khi
+              <code>gehihi_chat</code> trả nội dung mới xác nhận model web đã
+              chạy thành công trong phiên đó.
+            </li>
+          </ol>
+          <blockquote class="first-prompt">
+            Dùng gehihi_models để lấy model khả dụng. Nếu có gemini-4-argon, gọi
+            gehihi_chat với model đó và câu hỏi: “Xin chào, hãy trả lời ngắn
+            bằng tiếng Việt.” Hiển thị tên model thực tế cùng câu trả lời.
+          </blockquote>
+          <p class="guide-note">
+            MCP thêm công cụ gọi model web. Model chính của agent Antigravity
+            vẫn do ứng dụng quản lý. Quyền truy cập Argon trên web được kiểm tra
+            riêng qua danh sách model và phản hồi provider.
+          </p>
+          <p>
+            Nếu kiểm tra trả 401, cập nhật <code>API_KEY</code> local để trùng
+            khóa Production trên Vercel. Cầu nối đọc khóa mới mỗi lần gọi; không
+            cần lưu khóa trong file cấu hình MCP. Nếu server
+            <code>gehihi</code> chưa xuất hiện, kiểm tra file raw config và làm
+            mới danh sách MCP.
+          </p>
+          <a
+            class="guide-link"
+            href="https://antigravity.google/docs/mcp?tab=ide"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Hướng dẫn MCP chính thức của Google ↗</a
+          >
+        </article>
         <section
           class="guide-troubleshooting"
           aria-labelledby="guide-errors-title"

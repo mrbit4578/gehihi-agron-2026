@@ -1076,6 +1076,27 @@ kbd {
   margin-top: 35px;
   padding-bottom: 15px;
 }
+.antigravity-card {
+  margin-top: 24px;
+}
+.integration-flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+  color: var(--accent);
+  font-size: 11px;
+}
+.integration-flow > span {
+  padding: 10px 12px;
+  border: 1px solid #46593c;
+  border-radius: 7px;
+  background: #1d2920;
+}
+.integration-flow > b {
+  font-weight: 400;
+}
 .guide-troubleshooting h2 {
   margin: 12px 0 25px;
 }
