@@ -121,6 +121,23 @@ func TestParseGeminiModelsHandlesAlternateRPCFields(t *testing.T) {
 	}
 }
 
+func TestParseGeminiModelsHandlesFormattedBrowserCapture(t *testing.T) {
+	frame := modelRPCFixture(t, nil, []any{8}, nil,
+		modelRPCEntry("test-lite-id", "Fast", "3.5 Flash-Lite", 1),
+		modelRPCEntry("test-flash-id", "Fast", "3.8 Flash", 1),
+		modelRPCEntry("test-pro-id", "Pro", "3.1 Pro", 3),
+		modelRPCEntry("test-argon-id", "Pro", "4 Argon", 3))
+	for _, guard := range []string{")]}'\n\n", ")\n]\n} '\n\n"} {
+		models, err := parseGeminiModels([]byte(guard + fmt.Sprint(len(frame)) + "\n" + frame))
+		if err != nil || len(models) != 4 {
+			t.Fatalf("failed to decode browser framing: %v", err)
+		}
+		if models[3].ID != "gemini-4-argon" || models[3].ModelID != "test-argon-id" {
+			t.Fatal("lost account Argon routing")
+		}
+	}
+}
+
 func TestParseGeminiModelsRejectsUnavailableSessions(t *testing.T) {
 	for _, status := range []int{1014, 1016, 1021, 1033, 1040, 1042, 1054, 1057, 1060, 9999} {
 		t.Run(fmt.Sprint(status), func(t *testing.T) {

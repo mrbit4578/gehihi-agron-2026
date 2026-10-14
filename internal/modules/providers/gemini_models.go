@@ -46,6 +46,7 @@ type geminiModel struct {
 var (
 	geminiVersionPattern = regexp.MustCompile(`\b(\d+)(?:\.\d+)?\b`)
 	geminiSlugSeparator  = regexp.MustCompile(`[^a-z0-9.]+`)
+	geminiXSSIGuard      = regexp.MustCompile(`^\)\s*\]\s*\}\s*'\s*`)
 )
 
 func fetchGeminiModels(ctx context.Context, client *http.Client, token, cookieHeader, buildLabel, sessionID, language, generationID, authUser string) ([]geminiModel, error) {
@@ -118,7 +119,7 @@ func fetchGeminiModels(ctx context.Context, client *http.Client, token, cookieHe
 // decoding values instead of splitting lines also supports multiline frames.
 func parseGeminiModels(body []byte) ([]geminiModel, error) {
 	body = bytes.TrimSpace(body)
-	body = bytes.TrimPrefix(body, []byte(")]}'"))
+	body = geminiXSSIGuard.ReplaceAll(body, nil)
 	decoder := json.NewDecoder(bytes.NewReader(body))
 	decoder.UseNumber()
 	var records [][]any
