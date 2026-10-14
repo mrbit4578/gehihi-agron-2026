@@ -1,0 +1,13 @@
+.git
+.env*
+.cookies
+bin
+source
+tools
+tests
+examples
+assets
+*.zip
+*.exe
+*.log
+**/*_test.go

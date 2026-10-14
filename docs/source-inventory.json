@@ -1,0 +1,1038 @@
+[
+  {
+    "File": ".air.toml",
+    "Type": "text",
+    "Bytes": 811,
+    "Lines": 35,
+    "Symbols": null
+  },
+  {
+    "File": ".gitignore",
+    "Type": "text",
+    "Bytes": 873,
+    "Lines": 61,
+    "Symbols": null
+  },
+  {
+    "File": "go.mod",
+    "Type": "text",
+    "Bytes": 1214,
+    "Lines": 37,
+    "Symbols": null
+  },
+  {
+    "File": "tests\\e2e\\e2e_test.go",
+    "Type": "text",
+    "Bytes": 10792,
+    "Lines": 337,
+    "Symbols": [
+      "func TestLiveAPIContracts(t *testing.T) ",
+      "func repositoryRoot(t *testing.T) string ",
+      "func startServer(t *testing.T, root string) (string, func()) ",
+      "func waitForModels(t *testing.T, client *http.Client, baseURL string) []model ",
+      "func postJSON(t *testing.T, client *http.Client, url string, value any) *http.Response ",
+      "func postJSONInto(t *testing.T, client *http.Client, url string, input any, wantStatus int, output any) ",
+      "func getJSON(t *testing.T, client *http.Client, url string, wantStatus int, output any) ",
+      "func readBody(reader io.Reader) string ",
+      "func findModelByDisplay(models []model, value string) (model, bool) ",
+      "func containsModel(models []model, id string) bool "
+    ]
+  },
+  {
+    "File": "taskfile.yml",
+    "Type": "text",
+    "Bytes": 663,
+    "Lines": 30,
+    "Symbols": null
+  },
+  {
+    "File": "README.md",
+    "Type": "text",
+    "Bytes": 15335,
+    "Lines": 381,
+    "Symbols": null
+  },
+  {
+    "File": ".github\\workflows\\docker-publish.yml",
+    "Type": "text",
+    "Bytes": 1418,
+    "Lines": 53,
+    "Symbols": null
+  },
+  {
+    "File": ".github\\workflows\\code-review.yml",
+    "Type": "text",
+    "Bytes": 632,
+    "Lines": 25,
+    "Symbols": null
+  },
+  {
+    "File": ".github\\workflows\\auto-release.yml",
+    "Type": "text",
+    "Bytes": 1363,
+    "Lines": 47,
+    "Symbols": null
+  },
+  {
+    "File": ".env.example",
+    "Type": "text",
+    "Bytes": 558,
+    "Lines": 19,
+    "Symbols": null
+  },
+  {
+    "File": ".dockerignore",
+    "Type": "text",
+    "Bytes": 77,
+    "Lines": 11,
+    "Symbols": null
+  },
+  {
+    "File": "docker-compose.yml",
+    "Type": "text",
+    "Bytes": 582,
+    "Lines": 32,
+    "Symbols": null
+  },
+  {
+    "File": "pkg\\logger\\logger.go",
+    "Type": "text",
+    "Bytes": 865,
+    "Lines": 33,
+    "Symbols": "func New(logLevel string) (*zap.Logger, error) "
+  },
+  {
+    "File": "LICENSE",
+    "Type": "text",
+    "Bytes": 1079,
+    "Lines": 22,
+    "Symbols": null
+  },
+  {
+    "File": "cmd\\server\\main.go",
+    "Type": "text",
+    "Bytes": 431,
+    "Lines": 26,
+    "Symbols": "func main() "
+  },
+  {
+    "File": "assets\\swagger.png",
+    "Type": "image",
+    "Bytes": 245405
+  },
+  {
+    "File": "assets\\gemini_token_guide.png",
+    "Type": "image",
+    "Bytes": 230055
+  },
+  {
+    "File": "assets\\gemini.png",
+    "Type": "image",
+    "Bytes": 13852
+  },
+  {
+    "File": "Dockerfile",
+    "Type": "text",
+    "Bytes": 657,
+    "Lines": 35,
+    "Symbols": null
+  },
+  {
+    "File": "internal\\server\\static\\openapi.json",
+    "Type": "text",
+    "Bytes": 58684,
+    "Lines": 1673,
+    "Symbols": null
+  },
+  {
+    "File": "internal\\server\\server.go",
+    "Type": "text",
+    "Bytes": 2445,
+    "Lines": 93,
+    "Symbols": [
+      "func NewGeminiWebToAPI(log *zap.Logger, cfg *configs.Config) *fiber.App ",
+      "func HealthCheck(c fiber.Ctx) error ",
+      "func Register404Handler(app *fiber.App) ",
+      "func RegisterFiberLifecycle(lc fx.Lifecycle, app *fiber.App, cfg *configs.Config, log *zap.Logger) "
+    ]
+  },
+  {
+    "File": "internal\\server\\scalar.go",
+    "Type": "text",
+    "Bytes": 751,
+    "Lines": 34,
+    "Symbols": [
+      "func ScalarUI(c fiber.Ctx) error ",
+      "func OpenAPISpec(c fiber.Ctx) error "
+    ]
+  },
+  {
+    "File": "internal\\server\\module.go",
+    "Type": "text",
+    "Bytes": 136,
+    "Lines": 9,
+    "Symbols": null
+  },
+  {
+    "File": "docs\\video-generation.md",
+    "Type": "text",
+    "Bytes": 7243,
+    "Lines": 135,
+    "Symbols": null
+  },
+  {
+    "File": "docs\\music.md",
+    "Type": "text",
+    "Bytes": 5396,
+    "Lines": 92,
+    "Symbols": null
+  },
+  {
+    "File": "docs\\image-generation.md",
+    "Type": "text",
+    "Bytes": 6493,
+    "Lines": 201,
+    "Symbols": null
+  },
+  {
+    "File": "docs\\canvas.md",
+    "Type": "text",
+    "Bytes": 5421,
+    "Lines": 116,
+    "Symbols": null
+  },
+  {
+    "File": "go.sum",
+    "Type": "text",
+    "Bytes": 6765,
+    "Lines": 82,
+    "Symbols": null
+  },
+  {
+    "File": "internal\\commons\\utils\\utils_test.go",
+    "Type": "text",
+    "Bytes": 2655,
+    "Lines": 104,
+    "Symbols": [
+      "func TestExtractThinkingAndText(t *testing.T) ",
+      "func TestSplitResponseIntoChunks(t *testing.T) ",
+      "func TestExtractFirstJSONObject(t *testing.T) "
+    ]
+  },
+  {
+    "File": "internal\\commons\\utils\\utils.go",
+    "Type": "text",
+    "Bytes": 7614,
+    "Lines": 296,
+    "Symbols": [
+      "func BuildPromptFromMessages(messages []models.Message, systemPrompt string) string ",
+      "func ValidateMessages(messages []models.Message) error ",
+      "func ValidateGenerationRequest(model string, maxTokens int, temperature float32) error ",
+      "func MarshalJSONSafely(log *zap.Logger, v interface",
+      "func SendStreamChunk(w *bufio.Writer, log *zap.Logger, chunk interface",
+      "func SendSSEChunk(w *bufio.Writer, log *zap.Logger, event string, chunk interface",
+      "func SendSSEEvent(w *bufio.Writer, log *zap.Logger, v interface",
+      "func SplitResponseIntoChunks(text string, delayMs int) []string ",
+      "func ExtractFirstJSONObject(text string) string ",
+      "func SleepWithCancel(ctx context.Context, duration time.Duration) bool ",
+      "func ErrorToResponse(err error, errorType string) models.ErrorResponse ",
+      "func StripCodeFence(text string) string ",
+      "func ExtractThinkingAndText(raw string) (string, string) "
+    ]
+  },
+  {
+    "File": "internal\\commons\\models\\models_test.go",
+    "Type": "text",
+    "Bytes": 2605,
+    "Lines": 105,
+    "Symbols": "func TestMessage_UnmarshalJSON(t *testing.T) "
+  },
+  {
+    "File": "internal\\commons\\models\\models.go",
+    "Type": "text",
+    "Bytes": 8369,
+    "Lines": 257,
+    "Symbols": [
+      "func (m *Message) UnmarshalJSON(data []byte) error ",
+      "func extensionFromMimeType(mimeType string) string "
+    ]
+  },
+  {
+    "File": "internal\\commons\\configs\\configs_test.go",
+    "Type": "text",
+    "Bytes": 1837,
+    "Lines": 52,
+    "Symbols": [
+      "func TestCookieValueExtractsAuthFromFullHeader(t *testing.T) ",
+      "func TestNewRejectsInvalidGeminiAuthUser(t *testing.T) ",
+      "func TestNewRequiresCompleteGeminiCookiesHeader(t *testing.T) ",
+      "func TestNewDerivesAuthenticationFromGeminiCookies(t *testing.T) "
+    ]
+  },
+  {
+    "File": "internal\\commons\\configs\\configs.go",
+    "Type": "text",
+    "Bytes": 4246,
+    "Lines": 173,
+    "Symbols": [
+      "func New() (*Config, error) ",
+      "func cookieValue(header, wanted string) string ",
+      "func (c *Config) Validate() error ",
+      "func getEnv(key, defaultValue string) string ",
+      "func getEnvInt(key string, defaultValue int) int ",
+      "func getEnvBool(key string, defaultValue bool) bool "
+    ]
+  },
+  {
+    "File": "internal\\modules\\combine_module.go",
+    "Type": "text",
+    "Bytes": 315,
+    "Lines": 17,
+    "Symbols": null
+  },
+  {
+    "File": "internal\\modules\\claude\\dto\\system.go",
+    "Type": "text",
+    "Bytes": 732,
+    "Lines": 41,
+    "Symbols": "func (s *AnthropicSystemContent) UnmarshalJSON(data []byte) error "
+  },
+  {
+    "File": "internal\\modules\\claude\\dto\\claude_dto.go",
+    "Type": "text",
+    "Bytes": 3059,
+    "Lines": 71,
+    "Symbols": null
+  },
+  {
+    "File": "internal\\modules\\claude\\claude_service_test.go",
+    "Type": "text",
+    "Bytes": 2519,
+    "Lines": 85,
+    "Symbols": [
+      "func TestParseToolBridgeOutput(t *testing.T) ",
+      "func TestClaudeSSEChunkFormat(t *testing.T) "
+    ]
+  },
+  {
+    "File": "internal\\modules\\claude\\claude_service.go",
+    "Type": "text",
+    "Bytes": 7878,
+    "Lines": 305,
+    "Symbols": [
+      "func NewClaudeService(client *providers.Client, log *zap.Logger) *ClaudeService ",
+      "func (s *ClaudeService) ListModels() []providers.ModelInfo ",
+      "func (s *ClaudeService) ResolveModel(model string) (providers.ModelInfo, error) ",
+      "func (s *ClaudeService) ValidateMessage(req dto.MessageRequest) error ",
+      "func (s *ClaudeService) GenerateMessage(ctx context.Context, req dto.MessageRequest) (*dto.MessageResponse, error) ",
+      "func (s *ClaudeService) GenerateMessageStream(ctx context.Context, req dto.MessageRequest, onEvent func(dto.StreamEvent) bool) error ",
+      "func (s *ClaudeService) buildToolBridgePrompt(req dto.MessageRequest, basePrompt string) string ",
+      "func (s *ClaudeService) parseToolBridgeOutput(req dto.MessageRequest, text string) ([]dto.ConfigContent, string) "
+    ]
+  },
+  {
+    "File": "internal\\modules\\claude\\claude_module.go",
+    "Type": "text",
+    "Bytes": 398,
+    "Lines": 20,
+    "Symbols": "func RegisterRoutes(app *fiber.App, c *ClaudeController) "
+  },
+  {
+    "File": "internal\\modules\\claude\\claude_controller.go",
+    "Type": "text",
+    "Bytes": 5580,
+    "Lines": 189,
+    "Symbols": [
+      "func NewClaudeController(service *ClaudeService, log *zap.Logger) *ClaudeController ",
+      "func (h *ClaudeController) SetLogger(log *zap.Logger) ",
+      "func (h *ClaudeController) HandleModels(c fiber.Ctx) error ",
+      "func (h *ClaudeController) HandleModelByID(c fiber.Ctx) error ",
+      "func (h *ClaudeController) HandleMessages(c fiber.Ctx) error ",
+      "func (h *ClaudeController) HandleCountTokens(c fiber.Ctx) error ",
+      "func (c *ClaudeController) Register(group fiber.Router) "
+    ]
+  },
+  {
+    "File": "internal\\modules\\gemini\\research_store.go",
+    "Type": "text",
+    "Bytes": 2123,
+    "Lines": 93,
+    "Symbols": [
+      "func newTaskStore() *taskStore ",
+      "func (s *taskStore) set(t *researchTask) ",
+      "func (s *taskStore) get(id string) (*researchTask, bool) ",
+      "func (s *taskStore) update(id string, fn func(*researchTask)) ",
+      "func (s *taskStore) purgeOlderThan(d time.Duration) ",
+      "func taskToDTO(t *researchTask) dto.InteractionResponse "
+    ]
+  },
+  {
+    "File": "internal\\modules\\gemini\\gemini_service_test.go",
+    "Type": "text",
+    "Bytes": 5674,
+    "Lines": 165,
+    "Symbols": [
+      "func TestGeminiBuildPrompt(t *testing.T) ",
+      "func TestVideoOperationMatchesGoogleGenAI(t *testing.T) "
+    ]
+  },
+  {
+    "File": "internal\\modules\\gemini\\gemini_service.go",
+    "Type": "text",
+    "Bytes": 17203,
+    "Lines": 585,
+    "Symbols": [
+      "func NewGeminiService(client *providers.Client, log *zap.Logger) *GeminiService ",
+      "func (s *GeminiService) ListModels() []providers.ModelInfo ",
+      "func (s *GeminiService) ResolveModel(model string) (providers.ModelInfo, error) ",
+      "func (s *GeminiService) GenerateContent(ctx context.Context, modelID string, req dto.GeminiGenerateRequest) (*dto.GeminiGenerateResponse, error) ",
+      "func (s *GeminiService) buildPrompt(req dto.GeminiGenerateRequest) (string, []providers.InputFile, error) ",
+      "func extensionForMimeType(mimeType string) string ",
+      "func (s *GeminiService) GenerateContentStream(ctx context.Context, modelID string, req dto.GeminiGenerateRequest, onEvent func(dto.GeminiGenerateResponse) bool) error ",
+      "func (s *GeminiService) buildToolBridgePrompt(req dto.GeminiGenerateRequest, basePrompt string) string ",
+      "func (s *GeminiService) parseToolBridgeOutput(req dto.GeminiGenerateRequest, text string) ([]dto.FunctionCall, string) ",
+      "func (s *GeminiService) IsHealthy() bool ",
+      "func (s *GeminiService) Client() *providers.Client ",
+      "func (s *GeminiService) generateMusic(ctx context.Context, modelID, prompt string) (*dto.GeminiGenerateResponse, error) ",
+      "func (s *GeminiService) StartVideoOperation(model string, req dto.PredictLongRunningRequest) (*dto.VideoOperation, error) ",
+      "func (s *GeminiService) GetVideoOperation(model, id, fileBaseURL string) (*dto.VideoOperation, error) ",
+      "func (s *GeminiService) VideoFile(id string) ([]byte, string, error) ",
+      "func videoOperationName(model, id string) string ",
+      "func videoOperationError(err *providers.VideoError) *dto.OperationError ",
+      "func (s *GeminiService) DeepResearch(ctx context.Context, req dto.DeepResearchRequest) (*dto.DeepResearchResponse, error) ",
+      "func (s *GeminiService) DeepResearchStream(ctx context.Context, req dto.DeepResearchRequest, cb func(dto.DeepResearchStreamEvent) bool) error ",
+      "func toDeepResearchResponse(r *providers.DeepResearchResult, status string) *dto.DeepResearchResponse "
+    ]
+  },
+  {
+    "File": "internal\\modules\\gemini\\gemini_module.go",
+    "Type": "text",
+    "Bytes": 529,
+    "Lines": 30,
+    "Symbols": "func RegisterRoutes(lc fx.Lifecycle, app *fiber.App, c *GeminiController) "
+  },
+  {
+    "File": "internal\\modules\\gemini\\gemini_controller.go",
+    "Type": "text",
+    "Bytes": 17057,
+    "Lines": 481,
+    "Symbols": [
+      "func NewGeminiController(service *GeminiService, log *zap.Logger) *GeminiController ",
+      "func (h *GeminiController) Close() ",
+      "func (h *GeminiController) SetLogger(log *zap.Logger) ",
+      "func (h *GeminiController) IsHealthy() bool ",
+      "func (h *GeminiController) HandleV1BetaModels(c fiber.Ctx) error ",
+      "func (h *GeminiController) HandleV1BetaModel(c fiber.Ctx) error ",
+      "func (h *GeminiController) HandleV1BetaGenerateContent(c fiber.Ctx) error ",
+      "func (h *GeminiController) HandleV1BetaStreamGenerateContent(c fiber.Ctx) error ",
+      "func (h *GeminiController) HandleDeepResearch(c fiber.Ctx) error ",
+      "func (h *GeminiController) HandleDeepResearchStream(c fiber.Ctx) error ",
+      "func (h *GeminiController) HandleInteractionCreate(c fiber.Ctx) error ",
+      "func (h *GeminiController) HandleInteractionGet(c fiber.Ctx) error ",
+      "func videoRequestError(c fiber.Ctx, err error) error ",
+      "func (h *GeminiController) HandlePredictLongRunning(c fiber.Ctx) error ",
+      "func (h *GeminiController) HandleGetOperation(c fiber.Ctx) error ",
+      "func (h *GeminiController) HandleDownloadFile(c fiber.Ctx) error ",
+      "func (g *GeminiController) Register(group fiber.Router) ",
+      "func (h *GeminiController) backgroundResearch(id string, req dto.DeepResearchRequest) "
+    ]
+  },
+  {
+    "File": "internal\\modules\\gemini\\dto\\gemini_dto.go",
+    "Type": "text",
+    "Bytes": 9264,
+    "Lines": 267,
+    "Symbols": [
+      "func (r *GeminiGenerateRequest) UnmarshalJSON(data []byte) error ",
+      "func (p *Part) UnmarshalJSON(data []byte) error ",
+      "func (d *InlineData) UnmarshalJSON(data []byte) error "
+    ]
+  },
+  {
+    "File": "internal\\modules\\gemini\\dto\\deep_research_dto.go",
+    "Type": "text",
+    "Bytes": 5455,
+    "Lines": 140,
+    "Symbols": null
+  },
+  {
+    "File": "internal\\modules\\openai\\openai_service_test.go",
+    "Type": "text",
+    "Bytes": 6506,
+    "Lines": 169,
+    "Symbols": [
+      "func TestOpenAIToolBridgeParsing(t *testing.T) ",
+      "func newVideoTestApp(t *testing.T, release chan struct",
+      "func doVideoRequest(t *testing.T, app *fiber.App, req *http.Request) (int, []byte) ",
+      "func TestVideosAPIMatchesOpenAISDK(t *testing.T) ",
+      "func TestVideosAPIRejectsInvalidRequests(t *testing.T) "
+    ]
+  },
+  {
+    "File": "internal\\modules\\openai\\openai_service.go",
+    "Type": "text",
+    "Bytes": 18321,
+    "Lines": 653,
+    "Symbols": [
+      "func NewOpenAIService(client *providers.Client, log *zap.Logger) *OpenAIService ",
+      "func (s *OpenAIService) ListModels() []providers.ModelInfo ",
+      "func (s *OpenAIService) ResolveModel(model string) (providers.ModelInfo, error) ",
+      "func (s *OpenAIService) ValidateChatCompletion(req dto.ChatCompletionRequest) error ",
+      "func (s *OpenAIService) CreateChatCompletion(ctx context.Context, req dto.ChatCompletionRequest) (*dto.ChatCompletionResponse, error) ",
+      "func (s *OpenAIService) CreateImageGeneration(ctx context.Context, req dto.ImageGenerationRequest) (*dto.ImageGenerationResponse, error) ",
+      "func buildImageGenerationPrompt(prompt, size string) string ",
+      "func (s *OpenAIService) CreateVideo(req dto.VideoGenerationRequest) (*dto.Video, error) ",
+      "func (s *OpenAIService) GetVideo(id string) (*dto.Video, error) ",
+      "func (s *OpenAIService) ListVideos() *dto.VideoList ",
+      "func (s *OpenAIService) DeleteVideo(id string) (*dto.VideoDeleted, error) ",
+      "func (s *OpenAIService) VideoContent(id string) ([]byte, string, error) ",
+      "func toOpenAIVideo(job providers.VideoJob, now time.Time) *dto.Video ",
+      "func (s *OpenAIService) CreateSpeech(ctx context.Context, req dto.SpeechRequest) ([]byte, string, error) ",
+      "func (s *OpenAIService) CreateChatCompletionStream(ctx context.Context, req dto.ChatCompletionRequest, onEvent func(dto.ChatCompletionChunk) bool) error ",
+      "func (s *OpenAIService) buildToolBridgePrompt(req dto.ChatCompletionRequest, basePrompt string) string ",
+      "func (s *OpenAIService) parseToolBridgeOutput(req dto.ChatCompletionRequest, text string) ([]dto.ChatCompletionToolCall, string) ",
+      "func (s *OpenAIService) buildFallbackToolCalls(req dto.ChatCompletionRequest) []dto.ChatCompletionToolCall ",
+      "func decodeToolBridgePayload(text string) (toolBridgePayload, bool) ",
+      "func extractFirstJSONObject(text string) string ",
+      "func normalizeArguments(raw json.RawMessage) string "
+    ]
+  },
+  {
+    "File": "internal\\modules\\openai\\openai_module.go",
+    "Type": "text",
+    "Bytes": 398,
+    "Lines": 20,
+    "Symbols": "func RegisterRoutes(app *fiber.App, c *OpenAIController) "
+  },
+  {
+    "File": "internal\\modules\\openai\\openai_controller.go",
+    "Type": "text",
+    "Bytes": 13867,
+    "Lines": 370,
+    "Symbols": [
+      "func NewOpenAIController(service *OpenAIService, log *zap.Logger) *OpenAIController ",
+      "func (h *OpenAIController) SetLogger(log *zap.Logger) ",
+      "func (h *OpenAIController) GetModelData() []models.ModelData ",
+      "func (h *OpenAIController) HandleModels(c fiber.Ctx) error ",
+      "func (h *OpenAIController) HandleModel(c fiber.Ctx) error ",
+      "func openAIRequestError(c fiber.Ctx, err error) error ",
+      "func (h *OpenAIController) HandleChatCompletions(c fiber.Ctx) error ",
+      "func (h *OpenAIController) HandleImageGenerations(c fiber.Ctx) error ",
+      "func videoRequestError(c fiber.Ctx, err error) error ",
+      "func (h *OpenAIController) HandleCreateVideo(c fiber.Ctx) error ",
+      "func (h *OpenAIController) HandleListVideos(c fiber.Ctx) error ",
+      "func (h *OpenAIController) HandleGetVideo(c fiber.Ctx) error ",
+      "func (h *OpenAIController) HandleDeleteVideo(c fiber.Ctx) error ",
+      "func (h *OpenAIController) HandleVideoContent(c fiber.Ctx) error ",
+      "func musicRequestError(c fiber.Ctx, err error) error ",
+      "func (h *OpenAIController) HandleSpeech(c fiber.Ctx) error ",
+      "func (c *OpenAIController) Register(group fiber.Router) "
+    ]
+  },
+  {
+    "File": "internal\\modules\\openai\\dto\\openai_dto_test.go",
+    "Type": "text",
+    "Bytes": 2552,
+    "Lines": 90,
+    "Symbols": "func TestChatCompletionMessageUnmarshal(t *testing.T) "
+  },
+  {
+    "File": "internal\\modules\\openai\\dto\\openai_dto.go",
+    "Type": "text",
+    "Bytes": 15187,
+    "Lines": 452,
+    "Symbols": [
+      "func (m *ChatCompletionMessage) UnmarshalJSON(data []byte) error ",
+      "func (m ChatCompletionMessage) ToModelMessage() models.Message ",
+      "func attachmentFromDataURL(value string, index int) (models.Attachment, bool) ",
+      "func extensionFromMimeType(mimeType string) string ",
+      "func (r ChatCompletionRequest) ToModelMessages() []models.Message ",
+      "func (r ChatCompletionRequest) ToolChoiceMode() string ",
+      "func (r ChatCompletionRequest) ForcedToolName() string ",
+      "func (r ChatCompletionRequest) HasToolsEnabled() bool ",
+      "func (r SpeechRequest) VoiceName() string "
+    ]
+  },
+  {
+    "File": "examples\\openai_video_client.py",
+    "Type": "text",
+    "Bytes": 2351,
+    "Lines": 60,
+    "Symbols": null
+  },
+  {
+    "File": "examples\\openai_music_client.py",
+    "Type": "text",
+    "Bytes": 2072,
+    "Lines": 54,
+    "Symbols": null
+  },
+  {
+    "File": "examples\\openai_client.py",
+    "Type": "text",
+    "Bytes": 929,
+    "Lines": 34,
+    "Symbols": null
+  },
+  {
+    "File": "examples\\openai_canvas_client.py",
+    "Type": "text",
+    "Bytes": 1703,
+    "Lines": 50,
+    "Symbols": null
+  },
+  {
+    "File": "examples\\gemini_video_client.py",
+    "Type": "text",
+    "Bytes": 2157,
+    "Lines": 62,
+    "Symbols": null
+  },
+  {
+    "File": "examples\\gemini_music_client.py",
+    "Type": "text",
+    "Bytes": 1824,
+    "Lines": 53,
+    "Symbols": null
+  },
+  {
+    "File": "examples\\gemini_client.py",
+    "Type": "text",
+    "Bytes": 965,
+    "Lines": 36,
+    "Symbols": null
+  },
+  {
+    "File": "examples\\gemini_canvas_client.py",
+    "Type": "text",
+    "Bytes": 1651,
+    "Lines": 52,
+    "Symbols": null
+  },
+  {
+    "File": "examples\\fiber.png",
+    "Type": "image",
+    "Bytes": 35644
+  },
+  {
+    "File": "examples\\deep_search_client.py",
+    "Type": "text",
+    "Bytes": 1034,
+    "Lines": 36,
+    "Symbols": null
+  },
+  {
+    "File": "examples\\claude_client.py",
+    "Type": "text",
+    "Bytes": 314,
+    "Lines": 12,
+    "Symbols": null
+  },
+  {
+    "File": "examples\\claude_canvas_client.py",
+    "Type": "text",
+    "Bytes": 1801,
+    "Lines": 52,
+    "Symbols": null
+  },
+  {
+    "File": "internal\\modules\\providers\\provider_module.go",
+    "Type": "text",
+    "Bytes": 919,
+    "Lines": 41,
+    "Symbols": "func RegisterProvider(lc fx.Lifecycle, pm *ProviderManager, c *Client, log *zap.Logger) "
+  },
+  {
+    "File": "internal\\modules\\providers\\provider_models.go",
+    "Type": "text",
+    "Bytes": 328,
+    "Lines": 11,
+    "Symbols": null
+  },
+  {
+    "File": "internal\\modules\\providers\\provider_manager.go",
+    "Type": "text",
+    "Bytes": 3982,
+    "Lines": 141,
+    "Symbols": [
+      "func NewFactory() *Factory ",
+      "func (f *Factory) Register(name string, provider Provider) ",
+      "func (f *Factory) Get(name string) Provider ",
+      "func (f *Factory) List() []string ",
+      "func (f *Factory) All() map[string]Provider ",
+      "func NewProviderManager(log *zap.Logger) *ProviderManager ",
+      "func (pm *ProviderManager) Register(name string, provider Provider) ",
+      "func (pm *ProviderManager) SelectProvider(providerType string) error ",
+      "func (pm *ProviderManager) GetSelectedProvider() Provider ",
+      "func (pm *ProviderManager) GetProvider(name string) Provider ",
+      "func (pm *ProviderManager) ListProviders() []string ",
+      "func (pm *ProviderManager) InitAllProviders(ctx context.Context) ",
+      "func (pm *ProviderManager) CloseAllProviders() error "
+    ]
+  },
+  {
+    "File": "internal\\modules\\providers\\provider_interface.go",
+    "Type": "text",
+    "Bytes": 5223,
+    "Lines": 172,
+    "Symbols": [
+      "func WithModel(model string) GenerateOption ",
+      "func WithFiles(files []string) GenerateOption ",
+      "func WithInputFiles(files []InputFile) GenerateOption ",
+      "func WithGeneratedImageDownload(download bool) GenerateOption ",
+      "func WithChatModel(model string) ChatOption ",
+      "func WithChatMetadata(metadata *SessionMetadata) ChatOption "
+    ]
+  },
+  {
+    "File": "internal\\modules\\providers\\generated_media_test.go",
+    "Type": "text",
+    "Bytes": 4856,
+    "Lines": 139,
+    "Symbols": [
+      "func TestExtractGeneratedImagesFromCandidateMediaSlot(t *testing.T) ",
+      "func TestParseResponseUsesGeneratedImageMediaSlot(t *testing.T) ",
+      "func TestAppendGoogleImageSizePreservesURLParts(t *testing.T) ",
+      "func TestIsTrustedGoogleMediaHost(t *testing.T) ",
+      "func TestDownloadGeneratedImageRejectsUntrustedHostBeforeRequest(t *testing.T) ",
+      "func TestGeneratedImageRedirectPolicyRejectsUntrustedHost(t *testing.T) ",
+      "func TestGeneratedImageRedirectPolicyAddsCookieOnlyToTrustedHost(t *testing.T) ",
+      "func TestReadGeneratedImageBodyRejectsOversize(t *testing.T) "
+    ]
+  },
+  {
+    "File": "internal\\modules\\providers\\gemini_video_test.go",
+    "Type": "text",
+    "Bytes": 14746,
+    "Lines": 355,
+    "Symbols": [
+      "func videoTestCandidate(text string, withVideo bool) []interface",
+      "func conversationTestBody(text string, withVideo bool) string ",
+      "func TestExtractGeneratedVideosFromSparseCard(t *testing.T) ",
+      "func TestExtractGeneratedVideosIgnoresUntrustedAndTextLinks(t *testing.T) ",
+      "func TestParseConversationVideos(t *testing.T) ",
+      "func TestApplyVideoInnerMatchesWebClient(t *testing.T) ",
+      "func TestGenerateVideoSubmitsOncePollsAndDownloads(t *testing.T) ",
+      "func TestGenerateVideoReportsQuotaWithoutPolling(t *testing.T) ",
+      "func TestDownloadGeneratedVideoRejectsNonVideo(t *testing.T) ",
+      "func (f *fakeVideoRun) generate(ctx context.Context, prompt, model string, aspect VideoAspectRatio) (*VideoResult, error) ",
+      "func waitForVideoJob(t *testing.T, c *Client, id, status string) VideoJob ",
+      "func TestVideoJobLifecycle(t *testing.T) ",
+      "func TestVideoJobFailureKeepsProviderError(t *testing.T) ",
+      "func TestVideoJobValidation(t *testing.T) ",
+      "func mp4TestBox(boxType string, payload []byte) []byte ",
+      "func TestMP4DurationReadsMovieHeader(t *testing.T) "
+    ]
+  },
+  {
+    "File": "internal\\modules\\providers\\gemini_video.go",
+    "Type": "text",
+    "Bytes": 30403,
+    "Lines": 989,
+    "Symbols": [
+      "func WithVideoGeneration(aspect VideoAspectRatio) GenerateOption ",
+      "func (e *VideoError) Error() string ",
+      "func applyVideoInner(inner []interface",
+      "func applyWebToolModelHeader(headers map[string]string) error ",
+      "func jspbField(value any, index int) any ",
+      "func extractGeneratedVideos(candidate []interface",
+      "func parseVideoItem(item []interface",
+      "func trustedMediaURL(raw string) bool ",
+      "func conversationIDFromPayload(payload []interface",
+      "func stripVideoPlaceholders(text string) string ",
+      "func safeProviderMessage(text string) string ",
+      "func classifyVideoReply(text string) *VideoError ",
+      "func (c *Client) GenerateVideo(ctx context.Context, prompt, model string, aspect VideoAspectRatio, pollInterval time.Duration) (*VideoResult, error) ",
+      "func (c *Client) waitForVideo(ctx context.Context, result *VideoResult, interval time.Duration) ([]Video, error) ",
+      "func (c *Client) readConversationVideos(ctx context.Context, conversationID string) ([]Video, string, error) ",
+      "func (c *Client) readConversationCandidates(ctx context.Context, conversationID string) ([][]interface",
+      "func parseConversationVideos(body []byte) ([]Video, string) ",
+      "func parseConversationCandidates(body []byte) ([][]interface",
+      "func (c *Client) downloadGeneratedVideo(ctx context.Context, rawURL, cookieHeader string) ([]byte, error) ",
+      "func withAuthUser(rawURL, authUser string) string ",
+      "func isMP4(data []byte) bool ",
+      "func mp4Duration(data []byte) float64 ",
+      "func mp4Box(data []byte, boxType string) []byte ",
+      "func (e *VideoValidationError) Error() string ",
+      "func (j VideoJob) Size() string ",
+      "func (j VideoJob) ExpiresAt() time.Time ",
+      "func newVideoJobStore(generate VideoGenerateFunc) *videoJobStore ",
+      "func (c *Client) videoJobStore() *videoJobStore ",
+      "func NewVideoTestClient(models []ModelInfo, generate VideoGenerateFunc) *Client ",
+      "func ParseVideoAspect(size, aspectRatio string) (VideoAspectRatio, error) ",
+      "func (c *Client) StartVideoJob(prompt, model string, aspect VideoAspectRatio) (VideoJob, error) ",
+      "func (c *Client) GetVideoJob(id string) (VideoJob, error) ",
+      "func (c *Client) VideoJobContent(id string) (VideoJob, []byte, error) ",
+      "func (c *Client) ListVideoJobs() []VideoJob ",
+      "func (c *Client) DeleteVideoJob(id string) error ",
+      "func (s *videoJobStore) start(prompt, model string, aspect VideoAspectRatio) (VideoJob, error) ",
+      "func (s *videoJobStore) run(id, prompt, model string, aspect VideoAspectRatio) ",
+      "func (s *videoJobStore) get(id string) (VideoJob, error) ",
+      "func (s *videoJobStore) content(id string) (VideoJob, []byte, error) ",
+      "func (s *videoJobStore) list() []VideoJob ",
+      "func (s *videoJobStore) delete(id string) error ",
+      "func (s *videoJobStore) close() ",
+      "func (s *videoJobStore) pruneLocked(now time.Time) "
+    ]
+  },
+  {
+    "File": "internal\\modules\\providers\\gemini_upload_test.go",
+    "Type": "text",
+    "Bytes": 3051,
+    "Lines": 89,
+    "Symbols": [
+      "func TestUploadFileRetriesAndCompletesResumableProtocol(t *testing.T) ",
+      "func TestUploadFileRejectsUntrustedUploadURL(t *testing.T) "
+    ]
+  },
+  {
+    "File": "internal\\modules\\providers\\gemini_upload.go",
+    "Type": "text",
+    "Bytes": 10794,
+    "Lines": 360,
+    "Symbols": [
+      "func (e *uploadHTTPError) Error() string ",
+      "func InputFilesFromAttachments(messages []models.Message) ([]InputFile, error) ",
+      "func InputFilesFromAttachmentList(attachments []models.Attachment) ([]InputFile, error) ",
+      "func DecodeBase64Data(value string) ([]byte, error) ",
+      "func decodeBase64Data(value string) ([]byte, error) ",
+      "func (c *Client) uploadRequestFiles(ctx context.Context, cfg *GenerateConfig, cookieHdr string) ([]uploadedFile, error) ",
+      "func (c *Client) uploadFile(ctx context.Context, filename, mimeType string, data []byte, cookieHdr string) (uploadedFile, error) ",
+      "func (c *Client) uploadFileTo(ctx context.Context, endpoint, filename, mimeType string, data []byte, cookieHdr string) (uploadedFile, error) ",
+      "func (c *Client) performResumableUpload(ctx context.Context, client *http.Client, endpoint, filename, mimeType string, data []byte, cookieHdr string) (uploadedFile, error) ",
+      "func (c *Client) uploadHeaders(cookieHdr string, size int) http.Header ",
+      "func doUploadRequest(ctx context.Context, client *http.Client, method, rawURL string, body io.Reader, headers http.Header) (*http.Response, error) ",
+      "func validateUploadURL(rawURL, endpoint string) error ",
+      "func isRetryableUploadError(err error) bool ",
+      "func uploadRetryDelay(err error, attempt int) time.Duration ",
+      "func waitForRetry(ctx context.Context, delay time.Duration) error ",
+      "func (c *Client) pushIDOrDefault() string ",
+      "func extensionForMimeType(mimeType string) string "
+    ]
+  },
+  {
+    "File": "internal\\modules\\providers\\gemini_service_test.go",
+    "Type": "text",
+    "Bytes": 3966,
+    "Lines": 138,
+    "Symbols": [
+      "func TestRefreshSessionHealthKeepsHealthyWhenRotationIsRejected(t *testing.T) ",
+      "func TestMergeCookieHeadersPreservesFullSessionAndOverridesAuth(t *testing.T) ",
+      "func TestRefreshSessionHealthMarksUnhealthyWhenBothChecksFail(t *testing.T) ",
+      "func TestParseResponseExtractsGeneratedImages(t *testing.T) ",
+      "func TestNormalizeImageURLHandlesGoogleusercontentReferences(t *testing.T) ",
+      "func TestParseResponseHandlesBardErrorInfo(t *testing.T) "
+    ]
+  },
+  {
+    "File": "internal\\modules\\providers\\gemini_service.go",
+    "Type": "text",
+    "Bytes": 45417,
+    "Lines": 1514,
+    "Symbols": [
+      "func NewClient(cfg *configs.Config, log *zap.Logger) *Client ",
+      "func (c *Client) Init(ctx context.Context) error ",
+      "func (c *Client) refreshSessionToken(ctx context.Context) error ",
+      "func (c *Client) startAutoRefresh() ",
+      "func refreshSessionHealth(rotate, refreshToken func() error) (rotateErr, sessionErr error, healthy bool) ",
+      "func (c *Client) RotateCookies() error ",
+      "func (c *Client) GetCookies() *CookieStore ",
+      "func (c *Client) GenerateContent(ctx context.Context, prompt string, options ...GenerateOption) (*Response, error) ",
+      "func (c *Client) ResolveModel(requested string) (ModelInfo, error) ",
+      "func (c *Client) generateContent(ctx context.Context, prompt string, metadata []interface",
+      "func (c *Client) responseModel(responseBody string) (geminiModel, bool) ",
+      "func generatedImageHTTPClient(cookieHeader string) *http.Client ",
+      "func (c *Client) downloadGeneratedImage(ctx context.Context, rawURL, cookieHeader string) (string, error) ",
+      "func buildGeminiModelHeaders(model geminiModel, requestID, generationID string) (map[string]string, error) ",
+      "func buildGenerateInner(prompt string, files []uploadedFile, modelNumber int, language, requestID string, isTemporary bool) []interface",
+      "func (c *Client) StartChat(options ...ChatOption) ChatSession ",
+      "func (c *Client) Close() error ",
+      "func (c *Client) GetName() string ",
+      "func (c *Client) IsHealthy() bool ",
+      "func (c *Client) ListModels() []ModelInfo ",
+      "func (c *Client) ListModelsIDs() []string ",
+      "func (c *Client) parseResponse(text string) (*Response, error) ",
+      "func extractBardError(item []interface",
+      "func collectImages(value any, out map[string]Image) ",
+      "func extractGeneratedImages(candidate []interface",
+      "func appendGoogleImageSize(rawURL string, size int) string ",
+      "func isTrustedGoogleMediaHost(host string) bool ",
+      "func normalizeImageURL(rawURL string) string ",
+      "func looksLikeImageURL(u *url.URL) bool ",
+      "func mimeTypeFromImageURL(rawURL string) string ",
+      "func (cs *CookieStore) ToHTTPCookies() []*http.Cookie ",
+      "func cleanCookie(v string) string ",
+      "func mergeCookieHeaders(headers ...string) string ",
+      "func (c *Client) LoadCachedCookies() (string, error) ",
+      "func (c *Client) SaveCachedCookies() error ",
+      "func (c *Client) ClearCookieCache() error ",
+      "func geminiAccountURL(endpoint, authUser string) string ",
+      "func geminiSourcePath(authUser string) string "
+    ]
+  },
+  {
+    "File": "internal\\modules\\providers\\gemini_music_test.go",
+    "Type": "text",
+    "Bytes": 6773,
+    "Lines": 156,
+    "Symbols": [
+      "func TestApplyMusicInnerMatchesWebClient(t *testing.T) ",
+      "func TestMusicConfigValidate(t *testing.T) ",
+      "func audioTestCandidate(text string, withAudio bool) []interface",
+      "func TestExtractGeneratedAudio(t *testing.T) ",
+      "func TestClassifyMusicReplyRecognizesGeminiFailures(t *testing.T) ",
+      "func TestGenerateMusicPollsAndDownloads(t *testing.T) "
+    ]
+  },
+  {
+    "File": "internal\\modules\\providers\\gemini_music.go",
+    "Type": "text",
+    "Bytes": 13346,
+    "Lines": 418,
+    "Symbols": [
+      "func (m *MusicConfig) Validate() error ",
+      "func (e *MusicValidationError) Error() string ",
+      "func WithMusicGeneration(config MusicConfig) GenerateOption ",
+      "func splitMusicModel(model string) (string, bool) ",
+      "func IsMusicModel(model string) bool ",
+      "func applyMusicInner(inner []interface",
+      "func extractGeneratedAudio(candidate []interface",
+      "func parseAudioItem(item []interface",
+      "func classifyMusicReply(text string) *VideoError ",
+      "func (c *Client) GenerateMusic(ctx context.Context, prompt, model string, config MusicConfig) (*MusicResult, error) ",
+      "func (c *Client) waitForAudio(ctx context.Context, result *MusicResult) ([]Audio, error) ",
+      "func (c *Client) downloadGeneratedAudio(ctx context.Context, rawURL, cookieHeader string) ([]byte, string, error) "
+    ]
+  },
+  {
+    "File": "internal\\modules\\providers\\gemini_models_test.go",
+    "Type": "text",
+    "Bytes": 14895,
+    "Lines": 347,
+    "Symbols": [
+      "func modelRPCFixture(t *testing.T, statusCode any, tiers, capabilities []any, entries ...any) string ",
+      "func modelRPCEntry(modelID, category, display string, number any) []any ",
+      "func TestParseGeminiModelsUsesAccountModelIdentity(t *testing.T) ",
+      "func TestParseGeminiModelsReadsAccountCapacity(t *testing.T) ",
+      "func TestParseGeminiModelsHandlesAlternateRPCFields(t *testing.T) ",
+      "func TestParseGeminiModelsRejectsUnavailableSessions(t *testing.T) ",
+      "func TestParseGeminiModelsRejectsMissingOrMalformedDiscovery(t *testing.T) ",
+      "func TestParseGeminiModelsRejectsInvalidModelNumbers(t *testing.T) ",
+      "func TestResolveGeminiModelNeverFallsBackFromPro(t *testing.T) ",
+      "func TestResolveGeminiModelRejectsAmbiguousAliases(t *testing.T) ",
+      "func TestResolveGeminiModelPrefersCanonicalNamesOverDisplayAliases(t *testing.T) ",
+      "func TestResolveGeminiModelDoesNotInventLegacyAliases(t *testing.T) ",
+      "func (f modelDiscoveryTransport) RoundTrip(request *http.Request) (*http.Response, error) ",
+      "func TestFetchGeminiModelsSendsAuthenticatedRPC(t *testing.T) ",
+      "func TestFetchGeminiModelsUsesConfiguredAccountSlot(t *testing.T) ",
+      "func TestGeminiAccountRouting(t *testing.T) ",
+      "func TestFetchGeminiModelsReportsFailuresWithoutSessionValues(t *testing.T) "
+    ]
+  },
+  {
+    "File": "internal\\modules\\providers\\gemini_models.go",
+    "Type": "text",
+    "Bytes": 11790,
+    "Lines": 392,
+    "Symbols": [
+      "func (e *ModelSelectionError) Error() string ",
+      "func fetchGeminiModels(ctx context.Context, client *http.Client, token, cookieHeader, buildLabel, sessionID, language, generationID, authUser string) ([]geminiModel, error) ",
+      "func parseGeminiModels(body []byte) ([]geminiModel, error) ",
+      "func collectGeminiModelRecords(value any, records *[][]any) ",
+      "func geminiAccountCapacity(tierValue, capabilityValue any) (int, int) ",
+      "func geminiModelNames(modelID, category, display string) (string, []string) ",
+      "func resolveGeminiModel(requested string, models []geminiModel) (geminiModel, error) ",
+      "func geminiArrayValue(values []any, index int) any ",
+      "func geminiFirstString(values []any, indexes ...int) string ",
+      "func geminiInteger(value any) (int, bool) "
+    ]
+  },
+  {
+    "File": "internal\\modules\\providers\\gemini_generation_test.go",
+    "Type": "text",
+    "Bytes": 10238,
+    "Lines": 245,
+    "Symbols": [
+      "func (f generationTestTransport) RoundTrip(r *http.Request) (*http.Response, error) ",
+      "func generationTestModels() []geminiModel ",
+      "func stubGenerationTransport(t *testing.T, inspect func(*http.Request, []interface",
+      "func TestGenerateContentSendsSelectedModelToGemini(t *testing.T) ",
+      "func TestGenerateContentRejectsUnavailableProBeforeSending(t *testing.T) ",
+      "func TestChatSessionUsesSelectedModelAndPreservesMetadata(t *testing.T) ",
+      "func TestBuildGenerateInnerPreservesUploadedFiles(t *testing.T) ",
+      "func TestChatSessionKeepsDefaultModelAcrossRegistryRefresh(t *testing.T) ",
+      "func TestStartChatRestoresModelFromMetadata(t *testing.T) ",
+      "func TestBuildGeminiModelHeadersSupportsAlternateCapacityField(t *testing.T) ",
+      "func TestResponseModelRecognizesOnlyUnambiguousProtocolEvidence(t *testing.T) "
+    ]
+  },
+  {
+    "File": "internal\\modules\\providers\\gemini_chat_session.go",
+    "Type": "text",
+    "Bytes": 2204,
+    "Lines": 89,
+    "Symbols": [
+      "func (s *GeminiChatSession) SendMessage(ctx context.Context, message string, options ...GenerateOption) (*Response, error) ",
+      "func (s *GeminiChatSession) GetMetadata() *SessionMetadata ",
+      "func (s *GeminiChatSession) GetHistory() []Message ",
+      "func (s *GeminiChatSession) Clear() ",
+      "func (s *GeminiChatSession) buildMetadata() []interface"
+    ]
+  },
+  {
+    "File": "internal\\modules\\providers\\gemini_canvas_test.go",
+    "Type": "text",
+    "Bytes": 6063,
+    "Lines": 142,
+    "Symbols": [
+      "func canvasTestEntry(code bool) []interface",
+      "func canvasTestCandidate(text string, entries ...[]interface",
+      "func TestExtractCanvases(t *testing.T) ",
+      "func TestRenderCanvasPlaceholders(t *testing.T) ",
+      "func TestCanvasModelSuffix(t *testing.T) ",
+      "func TestGenerateContentCanvasModeInlinesCanvas(t *testing.T) ",
+      "func TestCanvasFile(t *testing.T) "
+    ]
+  },
+  {
+    "File": "internal\\modules\\providers\\gemini_canvas.go",
+    "Type": "text",
+    "Bytes": 6605,
+    "Lines": 203,
+    "Symbols": [
+      "func WithCanvas() GenerateOption ",
+      "func splitCanvasModel(model string) (string, bool) ",
+      "func applyWebClientInner(inner []interface",
+      "func applyCanvasInner(inner []interface",
+      "func extractCanvases(candidate []interface",
+      "func (c Canvas) Source() string ",
+      "func (c Canvas) MimeType() string ",
+      "func (c Canvas) File() models.CanvasFile ",
+      "func CanvasFiles(canvases []Canvas) []models.CanvasFile ",
+      "func (c Canvas) Markdown() string ",
+      "func renderCanvasPlaceholders(text string, canvases []Canvas) string "
+    ]
+  },
+  {
+    "File": "internal\\modules\\providers\\deep_research.go",
+    "Type": "text",
+    "Bytes": 20663,
+    "Lines": 639,
+    "Symbols": [
+      "func WithResearchModel(model string) DeepResearchOption ",
+      "func WithResearchLanguage(lang string) DeepResearchOption ",
+      "func WithResearchMaxSources(n int) DeepResearchOption ",
+      "func WithResearchInputFiles(files []InputFile) DeepResearchOption ",
+      "func (c *Client) generatePlan(ctx context.Context, query, language, model string) (*researchPlan, error) ",
+      "func (c *Client) researchSubQuestion(ctx context.Context, question, language, model string) (*subResearchResult, error) ",
+      "func (c *Client) analyzeResearchInputFiles(ctx context.Context, query, language, model string, files []InputFile) (string, error) ",
+      "func (c *Client) synthesizeReport(ctx context.Context, query, language, model string, plan *researchPlan, subResults []*subResearchResult) (string, error) ",
+      "func (c *Client) DeepResearch(ctx context.Context, query string, opts ...DeepResearchOption) (*DeepResearchResult, error) ",
+      "func (c *Client) DeepResearchStream(ctx context.Context, query string, cb ProgressCallback, opts ...DeepResearchOption) error ",
+      "func extractJSON(text string) string ",
+      "func deduplicateSources(sources []SourceInfo) []SourceInfo ",
+      "func generateResearchID(query string, ts int64) string ",
+      "func sanitizeIDPart(s string) string "
+    ]
+  }
+]

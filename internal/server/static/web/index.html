@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#111517" />
+    <meta
+      name="description"
+      content="Gehihi — không gian làm việc và kiểm thử API Gemini của bạn."
+    />
+    <title>Gehihi — Gemini Workspace</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <aside class="sidebar">
+      <a class="brand" href="/" aria-label="Gehihi trang chủ"
+        ><img src="/favicon.svg" alt="" width="36" height="36" /><span
+          >gehihi<span class="brand-dot">.</span></span
+        ></a
+      >
+      <span class="sidebar-label">WORKSPACE / 2026</span>
+      <nav aria-label="Điều hướng chính">
+        <button class="nav-item active" data-view="chat">
+          <span class="nav-icon">◈</span><span>Không gian chat</span
+          ><span class="nav-hint">01</span>
+        </button>
+        <button class="nav-item" data-view="models">
+          <span class="nav-icon">✦</span><span>Thư viện model</span
+          ><span class="nav-hint">02</span>
+        </button>
+        <button class="nav-item" data-view="api">
+          <span class="nav-icon">⌘</span><span>Kết nối API</span
+          ><span class="nav-hint">03</span>
+        </button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="provider-card">
+          <span class="eyebrow">PROVIDER</span
+          ><strong id="provider-name">Gemini Web</strong
+          ><span class="provider-caption">Model theo quyền tài khoản</span>
+          <div class="provider-line">
+            <span class="dot" id="sidebar-dot"></span
+            ><span id="sidebar-status">Đang kiểm tra…</span>
+          </div>
+        </div>
+        <button class="settings-trigger" id="open-settings">
+          <span class="avatar">M</span
+          ><span
+            ><strong>My workspace</strong><small>Cấu hình kết nối</small></span
+          ><span>⚙</span>
+        </button>
+      </div>
+    </aside>
+    <main>
+      <header class="topbar">
+        <div class="breadcrumb">
+          Workspace <span>/</span>
+          <strong id="page-title">Không gian chat</strong>
+        </div>
+        <div class="header-actions">
+          <span class="status-pill" id="header-status"
+            ><span class="dot"></span>Đang kiểm tra</span
+          ><a
+            href="https://github.com/mrbit4578/gehihi-agron-2026"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="icon-link"
+            aria-label="Mở mã nguồn GitHub"
+            >↗</a
+          >
+        </div>
+      </header>
+      <section id="view-chat" class="view chat-view">
+        <div class="chat-toolbar">
+          <div>
+            <span class="eyebrow">PLAYGROUND</span>
+            <h1>Ý tưởng mới, bắt đầu ở đây<span class="brand-dot">.</span></h1>
+          </div>
+          <button class="quiet-button" id="new-chat">
+            ＋ Cuộc trò chuyện mới
+          </button>
+        </div>
+        <div class="notice" id="setup-notice" role="status">
+          <span class="notice-icon">ⓘ</span
+          ><span id="setup-text">Đang kiểm tra kết nối server…</span
+          ><button id="notice-connect">Kết nối ↗</button>
+        </div>
+        <div class="chat-space" id="chat-space">
+          <div class="welcome" id="welcome">
+            <div class="orbital" aria-hidden="true">
+              <div class="orbit orbit-one"></div>
+              <div class="orbit orbit-two"></div>
+              <span>✦</span><i></i>
+            </div>
+            <span class="eyebrow"
+              >A LITTLE CURIOSITY. A LOT OF POSSIBILITY.</span
+            >
+            <h2>Bạn đang nghĩ về điều gì?</h2>
+            <p>
+              Cùng khám phá, viết và xây dựng với model<br />Gemini được tài
+              khoản của bạn cấp quyền.
+            </p>
+            <div class="prompt-grid">
+              <button
+                class="prompt-card"
+                data-prompt="Giúp tôi lên ý tưởng và xây dựng một kế hoạch ra mắt sản phẩm mới."
+              >
+                <span>↗</span><strong>Biến ý tưởng thành kế hoạch</strong
+                ><small>Từ mục tiêu đến bước tiếp theo</small></button
+              ><button
+                class="prompt-card"
+                data-prompt="Giải thích cách tổ chức một API Go có bảo mật, dễ kiểm thử và triển khai."
+              >
+                <span>⌘</span><strong>Xây dựng cùng Gemini</strong
+                ><small>Giải quyết một bài toán kỹ thuật</small></button
+              ><button
+                class="prompt-card"
+                data-prompt="Hãy giúp tôi viết một đoạn giới thiệu sản phẩm ngắn gọn, rõ ràng và có cá tính."
+              >
+                <span>✧</span><strong>Viết một điều khác biệt</strong
+                ><small>Tìm giọng văn của riêng bạn</small>
+              </button>
+            </div>
+          </div>
+          <div
+            id="messages"
+            class="messages"
+            aria-live="polite"
+            aria-label="Nội dung cuộc trò chuyện"
+          ></div>
+        </div>
+        <div class="composer-wrap">
+          <form id="chat-form" class="composer">
+            <label for="prompt" class="sr-only">Tin nhắn của bạn</label
+            ><textarea
+              id="prompt"
+              rows="2"
+              maxlength="32000"
+              placeholder="Viết ý tưởng, câu hỏi hoặc điều bạn muốn xây dựng…"
+            ></textarea>
+            <div class="composer-bottom">
+              <div class="model-control">
+                <span>✦</span
+                ><label class="sr-only" for="model-select">Chọn model</label
+                ><select id="model-select" disabled>
+                  <option value="">Kết nối để chọn model</option></select
+                ><span class="private-tag">◉ Phiên riêng</span>
+              </div>
+              <button
+                class="send-button"
+                id="send"
+                type="submit"
+                disabled
+                aria-label="Gửi tin nhắn"
+              >
+                ↑</button
+              ><button class="stop-button" id="stop" type="button" hidden>
+                Dừng
+              </button>
+            </div>
+          </form>
+          <div class="composer-foot">
+            <span id="connection-summary"
+              >Khóa truy cập chỉ được giữ trong bộ nhớ của tab.</span
+            ><span>Ctrl + Enter để gửi</span>
+          </div>
+          <p class="inline-error" id="chat-error" role="alert" hidden></p>
+        </div>
+      </section>
+      <section id="view-models" class="view detail-view" hidden>
+        <span class="eyebrow">MODEL LIBRARY</span>
+        <h1>Đúng model. Đúng quyền truy cập.</h1>
+        <p class="page-description">
+          Danh sách được lấy trực tiếp từ provider sau khi xác thực. Model không
+          được cấp quyền sẽ không xuất hiện.
+        </p>
+        <div class="argon-note">
+          <span>✦</span>
+          <div>
+            <h2>Gemini 4 Argon</h2>
+            <p id="argon-status">
+              Chưa xác minh quyền truy cập. Kết nối để kiểm tra model này.
+            </p>
+            <a
+              href="https://antigravity.google/blog/gemini-4-argon-in-google-antigravity"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Điều kiện truy cập của Google ↗</a
+            >
+          </div>
+          <span class="outline-tag">MODEL REQUESTED</span>
+        </div>
+        <div class="section-heading">
+          <h2>Model của tài khoản <span id="model-count">0</span></h2>
+          <button id="refresh-models" class="quiet-button">↻ Làm mới</button>
+        </div>
+        <div id="model-grid" class="model-grid">
+          <div class="empty-card">
+            Kết nối bằng khóa truy cập để tải danh sách model.
+          </div>
+        </div>
+      </section>
+      <section id="view-api" class="view detail-view" hidden>
+        <span class="eyebrow">DEVELOPER ACCESS</span>
+        <h1>Một kết nối, nhiều cách xây dựng.</h1>
+        <p class="page-description">
+          Sử dụng endpoint tương thích OpenAI cho ứng dụng và công cụ của bạn.
+        </p>
+        <div class="api-grid">
+          <article class="api-card">
+            <span class="eyebrow">BASE URL</span>
+            <h2>OpenAI-compatible</h2>
+            <div class="code-line">
+              <code id="api-base"></code
+              ><button
+                id="copy-base"
+                class="copy-button"
+                aria-label="Sao chép URL API"
+              >
+                Sao chép
+              </button>
+            </div>
+            <p>
+              Xác thực bằng <code>Authorization: Bearer &lt;API_KEY&gt;</code>.
+            </p>
+          </article>
+          <article class="api-card">
+            <span class="eyebrow">GET STARTED</span>
+            <h2>Kiểm tra bằng cURL</h2>
+            <pre id="curl-example"></pre>
+            <button id="copy-curl" class="quiet-button">
+              Sao chép ví dụ ↗
+            </button>
+          </article>
+        </div>
+        <div class="section-heading">
+          <h2>Trạng thái hệ thống</h2>
+          <button id="refresh-status" class="quiet-button">
+            ↻ Kiểm tra lại
+          </button>
+        </div>
+        <div class="system-grid">
+          <div>
+            <small>Web server</small
+            ><strong id="system-server">Đang kiểm tra</strong>
+          </div>
+          <div>
+            <small>Khóa bảo vệ API</small
+            ><strong id="system-key">Chưa kiểm tra</strong>
+          </div>
+          <div>
+            <small>Provider</small
+            ><strong id="system-provider">Chưa kiểm tra</strong>
+          </div>
+          <div>
+            <small>Phiên kết nối</small
+            ><strong id="system-session">Chưa xác thực</strong>
+          </div>
+        </div>
+        <div class="deployment-note">
+          <strong>Vercel & Gemini Web</strong>
+          <p>
+            Chat và danh sách model chạy trong request. Tác vụ video, âm nhạc và
+            nghiên cứu dài cần backend chạy liên tục. Cookie Gemini được cấu
+            hình phía server; giao diện không thu thập cookie Google.
+          </p>
+          <a href="/docs" target="_blank" rel="noopener noreferrer"
+            >Tài liệu API gốc ↗</a
+          >
+        </div>
+      </section>
+      <footer>
+        <span>GEHIHI / YOUR AI WORKSPACE</span
+        ><span>Built for curious minds <span class="brand-dot">✦</span></span>
+      </footer>
+    </main>
+    <dialog id="settings-dialog">
+      <form id="connect-form">
+        <div class="dialog-heading">
+          <div>
+            <span class="eyebrow">CONNECTION</span>
+            <h2>Kết nối workspace</h2>
+          </div>
+          <button
+            type="button"
+            id="close-settings"
+            class="icon-link"
+            aria-label="Đóng cấu hình"
+          >
+            ×
+          </button>
+        </div>
+        <p>
+          Nhập khóa <code>API_KEY</code> của server để xem model và bắt đầu trò
+          chuyện.
+        </p>
+        <label for="access-key">Khóa truy cập API</label
+        ><input
+          type="password"
+          id="access-key"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="Dán khóa truy cập của workspace"
+          required
+        /><small
+          >Khóa chỉ được giữ trong bộ nhớ của tab và xóa khi tải lại trang. Đây
+          là khóa của workspace, không phải cookie Google.</small
+        >
+        <p id="connect-error" class="inline-error" role="alert" hidden></p>
+        <div class="dialog-actions">
+          <button type="button" id="disconnect" class="quiet-button">
+            Ngắt kết nối</button
+          ><button type="submit" id="connect-submit" class="primary-button">
+            Kết nối workspace ↗
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <div class="toast" id="toast" role="status" hidden></div>
+  </body>
+</html>
