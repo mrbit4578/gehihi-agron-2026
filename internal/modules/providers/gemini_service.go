@@ -72,8 +72,8 @@ const (
 )
 
 var (
-	accessTokenRegex         = regexp.MustCompile(`"SNlM0e":"([^"]+)"`)
-	accessTokenFallbackRegex = regexp.MustCompile(`\["SNlM0e","([^"]+)"\]`)
+	accessTokenRegex         = regexp.MustCompile(`"SNlM0e"\s*:\s*"([^"]+)"`)
+	accessTokenFallbackRegex = regexp.MustCompile(`\[\s*"SNlM0e"\s*,\s*"([^"]+)"\s*\]`)
 	pushIDRegex              = regexp.MustCompile(`"qKIAYe":"([^"]+)"`)
 	buildLabelRegex          = regexp.MustCompile(`"cfb2h":"([^"]+)"`)
 	sessionIDRegex           = regexp.MustCompile(`"FdrFJe":"([^"]+)"`)
@@ -287,7 +287,7 @@ func (c *Client) refreshSessionToken(ctx context.Context) error {
 
 	resp, err := hClient.Do(req2)
 	if err != nil {
-		return fmt.Errorf("failed to reach gemini app: %w", err)
+		return &SessionInitializationError{Code: "session_network_error", Stage: "session"}
 	}
 	defer resp.Body.Close()
 
@@ -317,12 +317,7 @@ func (c *Client) refreshSessionToken(ctx context.Context) error {
 	if len(matches) < 2 {
 		matches = accessTokenFallbackRegex.FindStringSubmatch(body)
 		if len(matches) < 2 {
-			errMsg := "authentication failed: SNlM0e not found"
-			if strings.Contains(body, "Sign in") || strings.Contains(body, "login") {
-				errMsg = "authentication failed: GEMINI_COOKIES is invalid or expired; copy the complete Cookie header from Gemini Web"
-			}
-			c.log.Info(errMsg)
-			return fmt.Errorf("%s", errMsg)
+			return missingSessionTokenError(resp, body)
 		}
 	}
 

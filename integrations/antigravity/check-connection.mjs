@@ -42,7 +42,11 @@ try {
   let models = [];
   if (!process.argv.includes("--status-only")) {
     ({ models } = dataFrom(
-      await client.callTool({ name: "gehihi_models", arguments: {} }),
+      await client.callTool(
+        { name: "gehihi_models", arguments: {} },
+        undefined,
+        { timeout: 105000 },
+      ),
     ));
     if (!models.length) throw new Error("Provider chưa trả model khả dụng.");
     report.workspace_authenticated = true;

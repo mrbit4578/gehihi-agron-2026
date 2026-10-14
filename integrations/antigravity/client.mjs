@@ -82,6 +82,26 @@ export function createClient(options = {}) {
       );
     }
     if (!response.ok) {
+      let failure;
+      try {
+        failure = await response.json();
+      } catch {}
+      const providerReasons = {
+        session_login_required:
+          "Khóa workspace đúng, nhưng Google chuyển phiên Gemini về đăng nhập. Kiểm tra Cookie mới và slot tài khoản trên Vercel.",
+        session_token_missing:
+          "Khóa workspace đúng, nhưng trang Gemini chưa trả token phiên. Có thể phiên, quyền tài khoản hoặc cấu trúc trang đã thay đổi.",
+        google_access_denied:
+          "Google từ chối truy cập Gemini từ server (403). Cookie mới có thể chưa giải quyết được hạn chế này.",
+        google_rate_limited:
+          "Google đang giới hạn request khởi tạo phiên (429). Chờ trước khi thử lại.",
+        google_verification_required:
+          "Google yêu cầu xác minh phiên hoặc CAPTCHA từ server. Cần hoàn tất xác minh tài khoản; không thể coi Cookie đã cấu hình là xác thực thành công.",
+        session_network_error:
+          "Server chưa gọi được trang Gemini. Kiểm tra kết nối, định dạng Cookie và môi trường backend.",
+        model_discovery_failed:
+          "Đã tới bước lấy model, nhưng Google từ chối hoặc chưa trả danh sách hợp lệ. Kiểm tra quyền tài khoản và phiên.",
+      };
       const messages = {
         401: "API_KEY local không trùng khóa workspace trên Vercel. Cập nhật riêng API_KEY trong .env.local rồi thử lại.",
         403: "Server từ chối quyền truy cập. Kiểm tra khóa và quyền tài khoản provider.",
@@ -89,7 +109,12 @@ export function createClient(options = {}) {
         501: "Tác vụ này không hỗ trợ trên Vercel. Dùng model chat văn bản.",
         503: "Provider chưa sẵn sàng. Kiểm tra cấu hình, Cookie hoặc gateway trên Vercel.",
       };
-      await response.body?.cancel();
+      if (
+        response.status === 503 &&
+        failure?.error?.type === "provider_unavailable" &&
+        Object.hasOwn(providerReasons, failure.error.code)
+      )
+        throw new Error(providerReasons[failure.error.code]);
       throw new Error(
         messages[response.status] || `API web trả HTTP ${response.status}.`,
       );

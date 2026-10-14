@@ -5,6 +5,8 @@ const state = {
   models: [],
   history: [],
   connected: false,
+  workspaceAuthenticated: false,
+  connectionIssue: null,
   connecting: false,
   busy: false,
   firstReplyReceived: false,
@@ -81,7 +83,8 @@ function showSettings() {
 }
 $("open-settings").addEventListener("click", showSettings);
 $("notice-connect").addEventListener("click", () => {
-  if (serverNeedsSetup()) showGuide("guide-server");
+  if (serverNeedsSetup() || state.connectionIssue === "provider")
+    showGuide("guide-server");
   else showSettings();
 });
 $("connection-guide").addEventListener("click", () => showGuide());
@@ -165,6 +168,11 @@ function renderGuide() {
     next =
       "Thực hiện bước 1 trong Vercel → Production, rồi redeploy ở bước 2. Nhập khóa vào hộp kết nối chưa thể sửa lỗi này.";
     tone = "blocked";
+  } else if (state.connectionIssue === "provider") {
+    summary = "Khóa workspace đã đúng. Phiên Gemini chưa sẵn sàng.";
+    next =
+      "Lỗi nằm ở kết nối Gemini phía server. Kiểm tra thông báo cụ thể, Cookie và slot tài khoản ở bước 1; sau đó redeploy và thử tải model lại.";
+    tone = "blocked";
   } else if (!hasModels) {
     summary = "Server đã nhận cấu hình. Tiếp tục bước 3.";
     next =
@@ -184,14 +192,16 @@ function renderGuide() {
   $("guide-summary").textContent = summary;
   $("guide-next").textContent = next;
   $("guide-status").dataset.tone = tone;
-  $("connection-help").hidden = !serverNeedsSetup();
+  $("connection-help").hidden =
+    !serverNeedsSetup() && state.connectionIssue !== "provider";
   $("connection-help-text").textContent =
     `${summary}. Cấu hình trên Vercel và redeploy trước khi kết nối.`;
-  $("notice-connect").textContent = serverNeedsSetup()
-    ? "Xem hướng dẫn ↗"
-    : state.connected
-      ? "Cấu hình ↗"
-      : "Kết nối ↗";
+  $("notice-connect").textContent =
+    serverNeedsSetup() || state.connectionIssue === "provider"
+      ? "Xem hướng dẫn ↗"
+      : state.connected
+        ? "Cấu hình ↗"
+        : "Kết nối ↗";
   $("guide-connect").textContent = hasModels
     ? "Kết nối lại workspace ↗"
     : "Kết nối workspace ↗";
@@ -216,9 +226,11 @@ function updateControls() {
   $("disconnect").disabled = state.connecting;
 }
 function errorMessage(data, status) {
-  if (typeof data.error === "string") return data.error;
+  if (typeof data?.error === "string") return data.error;
   return (
-    data.error?.message || data.message || `Yêu cầu thất bại (HTTP ${status}).`
+    data?.error?.message ||
+    data?.message ||
+    `Yêu cầu thất bại (HTTP ${status}).`
   );
 }
 async function request(path, options = {}) {
@@ -240,7 +252,33 @@ async function request(path, options = {}) {
       `Server trả về dữ liệu không hợp lệ (HTTP ${response.status}).`,
     );
   }
-  if (!response.ok) throw new Error(errorMessage(data, response.status));
+  if (!response.ok) {
+    const providerReasons = {
+      session_login_required:
+        "Khóa workspace đúng, nhưng Google yêu cầu đăng nhập lại phiên Gemini. Cập nhật Cookie và kiểm tra slot của cùng tài khoản trên Vercel, rồi redeploy.",
+      session_token_missing:
+        "Trang Gemini chưa trả token phiên. Có thể phiên, quyền tài khoản hoặc cấu trúc trang đã thay đổi. Khóa workspace đã được chấp nhận.",
+      google_access_denied:
+        "Google từ chối truy cập Gemini từ server (403). Đổi khóa workspace không xử lý được lỗi này; cần kiểm tra phiên và môi trường backend.",
+      google_rate_limited:
+        "Google đang giới hạn request khởi tạo phiên (429). Chờ trước khi thử tải model lại.",
+      google_verification_required:
+        "Google yêu cầu xác minh phiên hoặc CAPTCHA. Hãy kiểm tra tài khoản Gemini trong trình duyệt; phiên trên server chưa được xác thực.",
+      session_network_error:
+        "Server chưa gọi được trang Gemini. Kiểm tra kết nối, định dạng Cookie và môi trường backend.",
+      model_discovery_failed:
+        "Google chưa trả danh sách model hợp lệ. Kiểm tra quyền tài khoản và phiên Gemini. Khóa workspace đã được chấp nhận.",
+    };
+    const reason =
+      data?.error?.type === "provider_unavailable" &&
+      Object.hasOwn(providerReasons, data.error.code)
+        ? providerReasons[data.error.code]
+        : errorMessage(data, response.status);
+    const error = new Error(reason);
+    error.httpStatus = response.status;
+    error.errorType = data?.error?.type;
+    throw error;
+  }
   return data;
 }
 async function refreshStatus() {
@@ -378,6 +416,8 @@ async function connect() {
       );
     }
     state.connected = true;
+    state.workspaceAuthenticated = true;
+    state.connectionIssue = null;
     renderModels();
     $("sidebar-dot").classList.add("ready");
     $("header-status").querySelector(".dot").classList.add("ready");
@@ -392,13 +432,24 @@ async function connect() {
     $("system-session").textContent = "Đã kết nối";
   } catch (error) {
     state.connected = false;
+    state.workspaceAuthenticated =
+      error.httpStatus === 503 &&
+      ["provider_unavailable", "provider_initializing"].includes(
+        error.errorType,
+      );
+    state.connectionIssue = state.workspaceAuthenticated ? "provider" : null;
     state.models = [];
     renderModels();
     $("sidebar-dot").classList.remove("ready");
     $("header-status").querySelector(".dot").classList.remove("ready");
-    $("sidebar-status").textContent = "Chưa xác thực";
-    $("header-status").lastChild.textContent = " Chưa xác thực";
-    $("system-session").textContent = "Chưa xác thực";
+    const connectionLabel = state.workspaceAuthenticated
+      ? "Gemini chưa sẵn sàng"
+      : "Chưa xác thực";
+    $("sidebar-status").textContent = connectionLabel;
+    $("header-status").lastChild.textContent = ` ${connectionLabel}`;
+    $("system-session").textContent = state.workspaceAuthenticated
+      ? "Khóa đúng · Gemini chưa sẵn sàng"
+      : "Chưa xác thực";
     $("setup-notice").classList.remove("good");
     $("setup-text").textContent = error.message;
     $("connection-summary").textContent =
@@ -424,15 +475,21 @@ $("connect-form").addEventListener("submit", async (e) => {
     toast("Workspace đã kết nối");
   } catch (error) {
     state.connected = false;
-    state.key = "";
+    if (!state.workspaceAuthenticated) state.key = "";
     $("sidebar-dot").classList.remove("ready");
     $("header-status").querySelector(".dot").classList.remove("ready");
-    $("sidebar-status").textContent = "Chưa xác thực";
-    $("header-status").lastChild.textContent = " Chưa xác thực";
+    $("sidebar-status").textContent = state.workspaceAuthenticated
+      ? "Gemini chưa sẵn sàng"
+      : "Chưa xác thực";
+    $("header-status").lastChild.textContent = state.workspaceAuthenticated
+      ? " Gemini chưa sẵn sàng"
+      : " Chưa xác thực";
     $("setup-notice").classList.remove("good");
     $("connect-error").textContent = error.message;
     $("connect-error").hidden = false;
-    $("system-session").textContent = "Chưa xác thực";
+    $("system-session").textContent = state.workspaceAuthenticated
+      ? "Khóa đúng · Gemini chưa sẵn sàng"
+      : "Chưa xác thực";
     updateControls();
     renderGuide();
   } finally {
@@ -453,6 +510,8 @@ $("disconnect").addEventListener("click", () => {
   if (state.controller) state.controller.abort();
   state.key = "";
   state.connected = false;
+  state.workspaceAuthenticated = false;
+  state.connectionIssue = null;
   state.models = [];
   $("access-key").value = "";
   $("model-select").replaceChildren(new Option("Kết nối để chọn model", ""));

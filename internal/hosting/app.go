@@ -69,8 +69,9 @@ func New(cfg *configs.Config, log *zap.Logger) (*Runtime, error) {
 			}
 			initMu.Unlock()
 			if initErr != nil {
-				log.Warn("Provider authentication failed; verify server credentials")
-				return c.Status(503).JSON(fiber.Map{"error": fiber.Map{"message": "Không thể xác thực Gemini. Kiểm tra cookie và tài khoản trên server.", "type": "provider_unavailable"}})
+				code, upstreamStatus := providers.SafeInitializationDiagnostic(initErr)
+				log.Warn("Provider initialization failed", zap.String("code", code), zap.Int("upstream_status", upstreamStatus))
+				return c.Status(503).JSON(fiber.Map{"error": fiber.Map{"message": "Khóa workspace đã được chấp nhận, nhưng chưa khởi tạo được phiên Gemini. Kiểm tra Cookie và slot tài khoản trên Vercel.", "type": "provider_unavailable", "code": code, "upstream_status": upstreamStatus}})
 			}
 			return c.Next()
 		})

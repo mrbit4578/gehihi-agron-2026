@@ -101,7 +101,7 @@ func fetchGeminiModels(ctx context.Context, client *http.Client, token, cookieHe
 	}
 	defer response.Body.Close()
 	if response.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Gemini model discovery failed with HTTP status %d", response.StatusCode)
+		return nil, &SessionInitializationError{Code: "model_discovery_failed", Stage: "models", HTTPStatus: response.StatusCode}
 	}
 	body, err := io.ReadAll(io.LimitReader(response.Body, maxModelResponseSize+1))
 	if err != nil {
