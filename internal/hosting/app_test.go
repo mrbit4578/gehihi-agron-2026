@@ -1,7 +1,9 @@
 package hosting
 
 import (
+	"crypto/sha256"
 	"encoding/json"
+	"fmt"
 	"gemini-web-to-api/internal/commons/configs"
 	"go.uber.org/zap"
 	"io"
@@ -13,6 +15,48 @@ import (
 
 func testConfig() *configs.Config {
 	return &configs.Config{Server: configs.ServerConfig{Port: "4981", APIKey: "workspace-test-key"}, AllowUnconfigured: true}
+}
+
+func TestConnectionCheckRequiresAuthenticationAndNeverReturnsCookie(t *testing.T) {
+	cfg := testConfig()
+	cfg.Gemini.Cookies = "private-session-cookie"
+	cfg.Gemini.AuthUser = "2"
+	runtime, err := New(cfg, zap.NewNop())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer runtime.Close()
+	for _, tc := range []struct {
+		key, cookie string
+		status      int
+		match       bool
+	}{
+		{"", cfg.Gemini.Cookies, 401, false},
+		{cfg.Server.APIKey, cfg.Gemini.Cookies, 200, true},
+		{cfg.Server.APIKey, "different-session", 200, false},
+	} {
+		digest := fmt.Sprintf("%x", sha256.Sum256([]byte(tc.cookie)))
+		req := httptest.NewRequest("POST", "/openai/v1/connection-check", strings.NewReader(`{"cookie_digest":"`+digest+`"}`))
+		req.Header.Set("Authorization", "Bearer "+tc.key)
+		res, err := runtime.App.Test(req)
+		if err != nil {
+			t.Fatal(err)
+		}
+		body, _ := io.ReadAll(res.Body)
+		res.Body.Close()
+		if res.StatusCode != tc.status || strings.Contains(string(body), cfg.Gemini.Cookies) || strings.Contains(string(body), digest) {
+			t.Fatal("connection check leaked a credential or bypassed authentication")
+		}
+		if tc.status == 200 {
+			var result struct {
+				Match bool   `json:"cookie_matches"`
+				Slot  string `json:"account_slot"`
+			}
+			if json.Unmarshal(body, &result) != nil || result.Match != tc.match || result.Slot != "2" {
+				t.Fatal("incorrect configuration comparison")
+			}
+		}
+	}
 }
 
 func TestPublicUIAndFailClosedAPI(t *testing.T) {

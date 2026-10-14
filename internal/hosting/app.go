@@ -2,6 +2,9 @@ package hosting
 
 import (
 	"context"
+	"crypto/sha256"
+	"crypto/subtle"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"gemini-web-to-api/internal/commons/configs"
@@ -32,6 +35,25 @@ func New(cfg *configs.Config, log *zap.Logger) (*Runtime, error) {
 	client := providers.NewClient(cfg, log)
 	runtime := &Runtime{App: app, Client: client}
 	server.RegisterWebRoutes(app, client, cfg)
+	// Runs after workspace authentication and before provider initialization.
+	// Compare an opaque digest without returning credentials or their digest.
+	app.Post("/openai/v1/connection-check", func(c fiber.Ctx) error {
+		var input struct {
+			CookieDigest string `json:"cookie_digest"`
+		}
+		if json.Unmarshal(c.Body(), &input) != nil {
+			return c.SendStatus(400)
+		}
+		provided, err := hex.DecodeString(input.CookieDigest)
+		if err != nil || len(provided) != sha256.Size {
+			return c.SendStatus(400)
+		}
+		expected := sha256.Sum256([]byte(strings.TrimSpace(cfg.Gemini.Cookies)))
+		return c.JSON(fiber.Map{
+			"cookie_matches": subtle.ConstantTimeCompare(expected[:], provided) == 1,
+			"account_slot":   strings.TrimSpace(cfg.Gemini.AuthUser),
+		})
+	})
 	if cfg.Server.UpstreamBaseURL != "" {
 		proxy, err := newGateway(cfg)
 		if err != nil {
