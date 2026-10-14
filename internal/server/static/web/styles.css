@@ -765,6 +765,338 @@ main {
   line-height: 1.8;
   max-width: 720px;
 }
+.guide-view {
+  max-width: 1400px;
+  width: 100%;
+}
+.guide-heading,
+.guide-status,
+.guide-step-heading,
+.guide-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.guide-heading {
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.guide-heading > button {
+  margin-top: 16px;
+  flex-shrink: 0;
+}
+.guide-status {
+  margin-top: 26px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: var(--panel);
+}
+.guide-status[data-tone="blocked"] {
+  border-color: #79524a;
+  background: #27201e;
+}
+.guide-status[data-tone="ready"],
+.guide-status[data-tone="done"] {
+  border-color: #455c38;
+  background: #1d2920;
+}
+.guide-status-icon {
+  color: var(--accent);
+  font-size: 24px;
+}
+.guide-status strong {
+  font-size: 14px;
+  font-weight: 500;
+}
+.guide-status p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.8;
+  margin: 7px 0 0;
+}
+.guide-progress {
+  margin-left: auto;
+  color: var(--accent);
+  white-space: nowrap;
+  font-size: 11px;
+}
+.mindmap {
+  margin: 32px 0;
+  padding: 25px;
+  background:
+    radial-gradient(ellipse at 50% 35%, #c7ec9f08, transparent 70%), #141b18;
+  border: 1px solid #304033;
+  border-radius: 13px;
+}
+.mindmap figcaption {
+  color: var(--muted);
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+.mindmap-root {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  margin: 28px auto 0;
+  padding: 20px;
+  max-width: 290px;
+  background: #253325;
+  border: 1px solid #5b7448;
+  border-radius: 12px;
+  text-align: center;
+}
+.mindmap-root > span {
+  font-size: 27px;
+  color: var(--accent);
+}
+.mindmap-root strong {
+  font-size: 16px;
+  font-weight: 500;
+}
+.mindmap-root small {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.6;
+}
+.mindmap-branches {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  padding-top: 46px;
+  position: relative;
+}
+.mindmap-branches::before {
+  content: "";
+  position: absolute;
+  height: 23px;
+  width: 75%;
+  top: 23px;
+  left: 12.5%;
+  border-top: 1px solid #516648;
+}
+.mindmap-branches::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 23px;
+  border-left: 1px solid #516648;
+}
+.mindmap-node {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 11px;
+  padding: 17px;
+  border: 1px solid #344337;
+  border-radius: 9px;
+  background: #1a221d;
+}
+.mindmap-node::before {
+  content: "";
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  height: 23px;
+  border-left: 1px solid #516648;
+}
+.mindmap-node:hover {
+  border-color: #819b6c;
+  background: #253025;
+}
+.mindmap-node strong {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+.mindmap-node small {
+  font-size: 11px;
+  line-height: 1.8;
+  color: var(--muted);
+}
+.step-number {
+  font-size: 11px;
+  color: var(--accent);
+  border: 1px solid #4b6140;
+  border-radius: 7px;
+  padding: 8px;
+  flex-shrink: 0;
+}
+.step-state {
+  display: inline-block;
+  font-size: 10px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+.step-state[data-tone="done"] {
+  color: var(--accent);
+}
+.mindmap-node .step-state {
+  margin-top: auto;
+  padding-top: 10px;
+  width: 100%;
+  border-top: 1px solid #344337;
+}
+.guide-steps {
+  display: grid;
+  gap: 18px;
+}
+.guide-step {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel);
+  padding: 27px;
+  scroll-margin-top: 24px;
+}
+.guide-step h2,
+.guide-troubleshooting h2 {
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.4px;
+  margin: 8px 0;
+}
+.guide-step p,
+.guide-step li,
+.guide-details p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.9;
+}
+.guide-step p strong,
+.guide-step li strong {
+  color: var(--text);
+  font-weight: 500;
+}
+.guide-step ol {
+  padding-left: 22px;
+}
+.guide-step li + li {
+  margin-top: 8px;
+}
+.guide-step a,
+.guide-link,
+.text-button {
+  color: var(--accent);
+}
+.guide-step a:hover,
+.guide-link:hover,
+.text-button:hover {
+  text-decoration: underline;
+}
+.guide-step code,
+.guide-details code {
+  font-size: 11px;
+  color: #d0ddc6;
+  overflow-wrap: anywhere;
+}
+.guide-table-wrap {
+  overflow-x: auto;
+  margin: 20px 0;
+}
+.guide-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.guide-table th,
+.guide-table td {
+  border-bottom: 1px solid var(--border);
+  padding: 14px 10px;
+  vertical-align: top;
+  font-weight: 400;
+}
+.guide-table thead th {
+  font-size: 10px;
+  color: var(--muted);
+}
+.guide-table td {
+  color: var(--muted);
+}
+.guide-table th:first-child {
+  width: 24%;
+}
+.guide-table th:last-child {
+  width: 20%;
+}
+.guide-details {
+  border-top: 1px solid var(--border);
+  padding: 17px 0;
+}
+.guide-details summary {
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--text);
+}
+.guide-details summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 5px;
+}
+.guide-note {
+  border-left: 2px solid #536a42;
+  padding-left: 13px;
+}
+.guide-actions {
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+.guide-link {
+  font-size: 11px;
+}
+kbd {
+  font:
+    10px "Segoe UI",
+    system-ui,
+    sans-serif;
+  border: 1px solid #435046;
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  padding: 2px 5px;
+  white-space: nowrap;
+  color: var(--text);
+}
+.first-prompt {
+  margin: 18px 0;
+  border: 1px solid #3b4c35;
+  border-radius: 9px;
+  background: #141c17;
+  color: #d5eac6;
+  padding: 18px;
+  font-size: 14px;
+  line-height: 1.9;
+}
+.guide-troubleshooting {
+  margin-top: 35px;
+  padding-bottom: 15px;
+}
+.guide-troubleshooting h2 {
+  margin: 12px 0 25px;
+}
+.connection-help {
+  border: 1px solid #79524a;
+  background: #27201e;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 14px;
+}
+.connection-help p {
+  margin: 0;
+  color: #e1b8a7;
+}
+.text-button {
+  border: 0;
+  background: none;
+  padding: 0;
+  font-size: 11px;
+  min-height: 30px;
+}
 footer {
   border-top: 1px solid var(--border);
   display: flex;
@@ -891,6 +1223,19 @@ dialog small {
   }
 }
 @media (max-width: 1080px) {
+  .mindmap-branches {
+    gap: 9px;
+  }
+  .mindmap-node {
+    padding: 12px;
+  }
+  .guide-heading {
+    flex-direction: column;
+    gap: 0;
+  }
+  .guide-heading > button {
+    margin-top: 8px;
+  }
   .sidebar {
     width: 205px;
     padding-left: 14px;
@@ -928,6 +1273,69 @@ dialog small {
   }
 }
 @media (max-width: 740px) {
+  .guide-status {
+    padding: 15px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .guide-status > div {
+    flex: 1;
+    min-width: 0;
+  }
+  .guide-progress {
+    margin-left: 36px;
+  }
+  .mindmap {
+    padding: 17px;
+  }
+  .mindmap figcaption {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .mindmap-branches {
+    grid-template-columns: 1fr;
+    padding: 23px 0 0 18px;
+    gap: 12px;
+  }
+  .mindmap-branches::before {
+    top: 23px;
+    left: 0;
+    width: 0;
+    height: calc(100% - 90px);
+    border-left: 1px solid #516648;
+    border-top: 0;
+  }
+  .mindmap-branches::after {
+    display: none;
+  }
+  .mindmap-node {
+    padding: 15px;
+  }
+  .mindmap-node::before {
+    top: 50%;
+    left: -19px;
+    width: 18px;
+    height: 0;
+    border-top: 1px solid #516648;
+    border-left: 0;
+  }
+  .guide-step {
+    padding: 19px;
+  }
+  .guide-step h2 {
+    font-size: 18px;
+    line-height: 1.5;
+  }
+  .guide-table {
+    min-width: 540px;
+  }
+  .guide-step-heading {
+    gap: 12px;
+  }
+  .first-prompt {
+    font-size: 12px;
+    padding: 14px;
+  }
   .sidebar {
     width: 65px;
     padding: 22px 8px;

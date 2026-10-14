@@ -2,6 +2,14 @@
 
 Workspace tiếng Việt để chat, kiểm tra model và dùng API tương thích OpenAI. Backend Go được kế thừa từ [ntthanh2603/gemini-web-to-api](https://github.com/ntthanh2603/gemini-web-to-api), giữ bản quyền MIT và các bộ chuyển đổi Gemini / Claude / OpenAI.
 
+## Phiên chat đầu tiên
+
+Mở **Hướng dẫn sử dụng** trong sidebar, hoặc thêm `/#guide` vào URL web. Hướng dẫn có mindmap tương tác bốn bước: cấu hình Vercel → redeploy và kiểm tra → kết nối và chọn model → gửi câu hỏi đầu tiên. Mỗi bước dùng trạng thái thực tế từ server; bước cuối chỉ hoàn tất sau khi provider trả về nội dung chat.
+
+Nếu web báo **“Server chưa cấu hình API_KEY”**, nhập khóa vào hộp kết nối chưa đủ: cần thêm `API_KEY` vào **Settings → Environment Variables → Production** của project Vercel, lưu rồi redeploy. Với Gemini Web, cấu hình thêm `GEMINI_COOKIES` và slot `GEMINI_AUTH_USER` nếu có. Cookie chỉ lưu trên server; hộp kết nối chỉ nhận khóa workspace. `.env.local` trên máy không tự được đưa lên Vercel.
+
+Khi kiểm tra cho thấy khóa và provider đã cấu hình, nhập cùng `API_KEY` vào web, chọn model có trong danh sách, rồi dùng **Chuẩn bị tin nhắn đầu tiên** ở bước 4. Nút này điền câu hỏi; người dùng nhấn Gửi để thực hiện request thật. Danh sách trống chưa được coi là kết nối thành công.
+
 ## Deploy Vercel
 
 Bạn tự triển khai bằng [Import repository](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fmrbit4578%2Fgehihi-agron-2026). Chọn đúng team của bạn và repository `mrbit4578/gehihi-agron-2026`.

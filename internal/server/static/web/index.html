@@ -22,17 +22,29 @@
       >
       <span class="sidebar-label">WORKSPACE / 2026</span>
       <nav aria-label="Điều hướng chính">
-        <button class="nav-item active" data-view="chat">
+        <button
+          class="nav-item active"
+          data-view="chat"
+          aria-label="Không gian chat"
+        >
           <span class="nav-icon">◈</span><span>Không gian chat</span
           ><span class="nav-hint">01</span>
         </button>
-        <button class="nav-item" data-view="models">
+        <button class="nav-item" data-view="models" aria-label="Thư viện model">
           <span class="nav-icon">✦</span><span>Thư viện model</span
           ><span class="nav-hint">02</span>
         </button>
-        <button class="nav-item" data-view="api">
+        <button class="nav-item" data-view="api" aria-label="Kết nối API">
           <span class="nav-icon">⌘</span><span>Kết nối API</span
           ><span class="nav-hint">03</span>
+        </button>
+        <button
+          class="nav-item"
+          data-view="guide"
+          aria-label="Hướng dẫn và mindmap"
+        >
+          <span class="nav-icon">?</span><span>Hướng dẫn sử dụng</span
+          ><span class="nav-hint">04</span>
         </button>
       </nav>
       <div class="sidebar-bottom">
@@ -271,6 +283,372 @@
           >
         </div>
       </section>
+      <section id="view-guide" class="view detail-view guide-view" hidden>
+        <div class="guide-heading">
+          <div>
+            <span class="eyebrow">BẮT ĐẦU TẠI ĐÂY</span>
+            <h1>Bốn bước, một cuộc trò chuyện.</h1>
+            <p class="page-description">
+              Cấu hình server một lần, kết nối bằng khóa workspace, rồi chọn
+              model tài khoản có quyền sử dụng. Mindmap dưới đây dẫn đến từng
+              bước.
+            </p>
+          </div>
+          <button class="quiet-button" data-refresh-status>
+            ↻ Kiểm tra server
+          </button>
+        </div>
+        <div
+          class="guide-status"
+          id="guide-status"
+          data-tone="unknown"
+          role="status"
+        >
+          <span class="guide-status-icon" aria-hidden="true">ⓘ</span>
+          <div>
+            <strong id="guide-summary">Đang kiểm tra cấu hình…</strong>
+            <p id="guide-next">
+              Trạng thái được lấy từ server đang mở, không đọc khóa hay cookie.
+            </p>
+          </div>
+          <span class="guide-progress" id="guide-progress">0 / 4 bước</span>
+        </div>
+        <figure class="mindmap" aria-labelledby="mindmap-title">
+          <figcaption id="mindmap-title">
+            <span class="eyebrow">MINDMAP</span> Lộ trình phiên đầu tiên
+          </figcaption>
+          <div class="mindmap-root">
+            <span aria-hidden="true">✦</span><strong>Phiên chat đầu tiên</strong
+            ><small>Nhấn vào một nhánh để xem cách làm</small>
+          </div>
+          <div class="mindmap-branches">
+            <button class="mindmap-node" data-guide-target="guide-server">
+              <span class="step-number">01</span
+              ><strong>Cấu hình Vercel</strong>
+              <small>Khóa workspace + kết nối Gemini</small
+              ><span class="step-state" data-step-state="server"
+                >Chưa kiểm tra</span
+              >
+            </button>
+            <button class="mindmap-node" data-guide-target="guide-deploy">
+              <span class="step-number">02</span
+              ><strong>Redeploy & kiểm tra</strong>
+              <small>Server nhận cấu hình mới</small
+              ><span class="step-state" data-step-state="deploy"
+                >Chưa kiểm tra</span
+              >
+            </button>
+            <button class="mindmap-node" data-guide-target="guide-models">
+              <span class="step-number">03</span
+              ><strong>Kết nối & chọn model</strong>
+              <small>Danh sách thật từ tài khoản</small
+              ><span class="step-state" data-step-state="models"
+                >Chưa kết nối</span
+              >
+            </button>
+            <button class="mindmap-node" data-guide-target="guide-chat">
+              <span class="step-number">04</span
+              ><strong>Gửi tin nhắn đầu tiên</strong>
+              <small>Nhận phản hồi từ model</small
+              ><span class="step-state" data-step-state="chat"
+                >Chưa có phản hồi</span
+              >
+            </button>
+          </div>
+        </figure>
+        <div class="guide-steps">
+          <article class="guide-step" id="guide-server" tabindex="-1">
+            <div class="guide-step-heading">
+              <span class="step-number">01</span>
+              <div>
+                <span class="eyebrow">CHỦ WORKSPACE THỰC HIỆN</span>
+                <h2>Đưa cấu hình lên Vercel</h2>
+              </div>
+            </div>
+            <p>
+              Mở
+              <a
+                href="https://vercel.com/mrbit4578-4403s-projects"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Vercel ↗</a
+              >, chọn project của web này →
+              <strong>Settings → Environment Variables</strong>. Chọn môi trường
+              <strong>Production</strong>, rồi thêm các biến dưới đây. File
+              <code>.env.local</code> trên máy không tự được đưa lên Vercel.
+            </p>
+            <div class="guide-table-wrap">
+              <table class="guide-table">
+                <caption class="sr-only">
+                  Biến môi trường cho kết nối Gemini Web
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Tên biến</th>
+                    <th scope="col">Giá trị bạn cần điền</th>
+                    <th scope="col">Server hiện tại</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row"><code>API_KEY</code></th>
+                    <td>
+                      Khóa riêng của workspace. Lấy giá trị đã tạo trong
+                      <code>.env.local</code>, hoặc tự tạo khóa ngẫu nhiên mạnh.
+                      Bạn sẽ nhập cùng khóa này ở bước 3.
+                    </td>
+                    <td>
+                      <span class="step-state" id="guide-key-state"
+                        >Đang kiểm tra</span
+                      >
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row"><code>GEMINI_COOKIES</code></th>
+                    <td>
+                      Toàn bộ giá trị <strong>Cookie request header</strong> của
+                      chính tài khoản Gemini Web của bạn. Xem cách lấy ngay bên
+                      dưới.
+                    </td>
+                    <td>
+                      <span class="step-state" id="guide-provider-state"
+                        >Đang kiểm tra</span
+                      >
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row"><code>GEMINI_AUTH_USER</code></th>
+                    <td>
+                      Slot từ cùng request: URL có <code>/u/2/</code> thì điền
+                      <code>2</code>; không có slot thì bỏ trống.
+                    </td>
+                    <td>Tùy tài khoản</td>
+                  </tr>
+                  <tr>
+                    <th scope="row"><code>GEMINI_TEMPORARY</code></th>
+                    <td><code>true</code> để yêu cầu phiên Gemini tạm thời.</td>
+                    <td>Tùy chọn</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <details class="guide-details" open>
+              <summary>Lấy Cookie từ Gemini Web từng bước</summary>
+              <ol>
+                <li>
+                  Mở
+                  <a
+                    href="https://gemini.google.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >gemini.google.com ↗</a
+                  >
+                  và đăng nhập tài khoản của bạn.
+                </li>
+                <li>
+                  Nhấn <kbd>F12</kbd> hoặc <kbd>Ctrl</kbd> + <kbd>Shift</kbd> +
+                  <kbd>I</kbd>. Chọn tab <strong>Network</strong>, rồi gửi một
+                  tin nhắn ngắn trên Gemini để xuất hiện request mới.
+                </li>
+                <li>
+                  Lọc <code>batchexecute</code>. Chọn request có
+                  <code>rpcids=otAQ7b</code>, mở
+                  <strong>Headers → Request Headers → Cookie</strong>.
+                </li>
+                <li>
+                  Sao chép toàn bộ <em>giá trị</em> Cookie vào
+                  <code>GEMINI_COOKIES</code> ở Vercel, không kèm chữ
+                  <code>Cookie:</code>. Header cần chứa cả
+                  <code>__Secure-1PSID</code> và <code>__Secure-1PSIDTS</code>.
+                </li>
+                <li>
+                  Xem <strong>Request URL</strong> của cùng request để điền
+                  <code>GEMINI_AUTH_USER</code> nếu có slot, rồi lưu các biến.
+                </li>
+              </ol>
+              <p class="guide-note">
+                Cookie chỉ lưu phía server. Không dán cookie vào hộp kết nối
+                web, chat, GitHub hoặc ảnh chụp chia sẻ.
+              </p>
+            </details>
+            <details class="guide-details">
+              <summary>
+                Nếu bạn đã có gateway Antigravity tương thích OpenAI
+              </summary>
+              <p>
+                Giữ <code>API_KEY</code> của workspace. Dùng
+                <code>UPSTREAM_BASE_URL</code> (URL HTTPS có thể truy cập từ
+                internet, gồm <code>/v1</code>) và
+                <code>UPSTREAM_API_KEY</code> của gateway thay cho cấu hình
+                Cookie. Chỉ cài Antigravity trên máy chưa tạo ra URL API cho
+                Vercel.
+              </p>
+              <p>
+                Khóa Google AI Studio không dùng trực tiếp trong hộp kết nối
+                workspace. Chọn một kết nối provider bạn thực sự có, rồi kiểm
+                tra model được cấp quyền ở bước 3.
+              </p>
+            </details>
+          </article>
+          <article class="guide-step" id="guide-deploy" tabindex="-1">
+            <div class="guide-step-heading">
+              <span class="step-number">02</span>
+              <div>
+                <span class="eyebrow">ÁP DỤNG CẤU HÌNH</span>
+                <h2>Redeploy rồi kiểm tra lại</h2>
+              </div>
+            </div>
+            <p>
+              Sau khi lưu biến môi trường, mở <strong>Deployments</strong> trong
+              project Vercel và <strong>Redeploy</strong> bản Production mới
+              nhất từ nhánh <code>main</code>. Đợi trạng thái
+              <strong>Ready</strong>, mở lại domain web rồi nhấn nút kiểm tra
+              bên dưới.
+            </p>
+            <p>
+              Chỉ khi <strong>khóa workspace</strong> và
+              <strong>provider</strong> đều “Đã cấu hình” mới tiếp tục. Trạng
+              thái này xác nhận server nhận biến môi trường; quyền tài khoản và
+              hiệu lực Cookie được kiểm tra khi tải model.
+            </p>
+            <div class="guide-actions">
+              <button class="quiet-button" data-refresh-status>
+                ↻ Kiểm tra sau redeploy</button
+              ><a
+                class="guide-link"
+                href="https://vercel.com/docs/environment-variables"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Hướng dẫn biến môi trường Vercel ↗</a
+              >
+            </div>
+          </article>
+          <article class="guide-step" id="guide-models" tabindex="-1">
+            <div class="guide-step-heading">
+              <span class="step-number">03</span>
+              <div>
+                <span class="eyebrow">NGƯỜI DÙNG WORKSPACE</span>
+                <h2>Kết nối và chọn model thật</h2>
+              </div>
+            </div>
+            <ol>
+              <li>
+                Nhấn <strong>Kết nối workspace</strong>. Nhập đúng giá trị
+                <code>API_KEY</code> đã lưu trên Vercel ở bước 1.
+              </li>
+              <li>
+                Đợi danh sách model tải từ provider. Lần đầu có thể lâu hơn vì
+                server cần xác thực Gemini.
+              </li>
+              <li>
+                Vào <strong>Thư viện model</strong> hoặc dùng ô chọn model trong
+                chat. Chỉ chọn model xuất hiện trong danh sách.
+              </li>
+            </ol>
+            <p class="guide-note">
+              Gemini 4 Argon chỉ được chọn khi provider trả về model đó. Cài
+              Antigravity hoặc nhập tên model không tự cấp quyền truy cập. Nếu
+              Argon chưa có, bạn có thể chạy phiên đầu tiên bằng model khác đang
+              khả dụng.
+            </p>
+            <div class="guide-actions">
+              <button class="primary-button" id="guide-connect">
+                Kết nối workspace ↗</button
+              ><button class="quiet-button" id="guide-show-models">
+                Xem thư viện model
+              </button>
+            </div>
+          </article>
+          <article class="guide-step" id="guide-chat" tabindex="-1">
+            <div class="guide-step-heading">
+              <span class="step-number">04</span>
+              <div>
+                <span class="eyebrow">PHIÊN ĐẦU TIÊN</span>
+                <h2>Gửi một câu hỏi ngắn</h2>
+              </div>
+            </div>
+            <p>
+              Nhấn nút bên dưới để điền tin nhắn mẫu vào chat. Kiểm tra model
+              đang chọn, rồi nhấn <strong>↑ Gửi</strong> hoặc <kbd>Ctrl</kbd> +
+              <kbd>Enter</kbd>.
+            </p>
+            <blockquote class="first-prompt" id="first-prompt">
+              Xin chào! Hãy trả lời bằng tiếng Việt trong 2 câu và gợi ý một
+              việc bạn có thể giúp tôi hôm nay.
+            </blockquote>
+            <div class="guide-actions">
+              <button class="primary-button" id="prepare-first-chat">
+                Chuẩn bị tin nhắn đầu tiên ↗</button
+              ><button class="quiet-button" id="copy-first-prompt">
+                Sao chép câu hỏi
+              </button>
+            </div>
+            <p class="guide-note">
+              Phiên đầu tiên chỉ được đánh dấu hoàn tất sau khi nhận nội dung
+              trả lời từ provider. Tên model thực tế hiện phía trên câu trả lời.
+              Lịch sử và khóa kết nối chỉ nằm trong tab; tải lại trang sẽ cần
+              kết nối lại.
+            </p>
+          </article>
+        </div>
+        <section
+          class="guide-troubleshooting"
+          aria-labelledby="guide-errors-title"
+        >
+          <span class="eyebrow">KHI CẦN TRỢ GIÚP</span>
+          <h2 id="guide-errors-title">Lỗi thường gặp và bước xử lý</h2>
+          <details class="guide-details">
+            <summary>“Server chưa cấu hình API_KEY”</summary>
+            <p>
+              Thêm <code>API_KEY</code> trong Vercel → Settings → Environment
+              Variables → Production, lưu rồi redeploy. Nhập khóa vào hộp kết
+              nối web chỉ gửi khóa để xác thực, không cấu hình server.
+            </p>
+          </details>
+          <details class="guide-details">
+            <summary>401 · Khóa truy cập không đúng</summary>
+            <p>
+              Nhập đúng khóa workspace <code>API_KEY</code> của bản Production
+              hiện tại. Không dùng Cookie, khóa Google AI Studio hay khóa
+              upstream ở đây. Nếu vừa đổi khóa, redeploy rồi kết nối lại bằng
+              khóa mới.
+            </p>
+          </details>
+          <details class="guide-details">
+            <summary>503 · Thiếu Cookie hoặc Gemini chưa xác thực được</summary>
+            <p>
+              Kiểm tra <code>GEMINI_COOKIES</code> và slot tài khoản. Cookie cần
+              lấy từ cùng tab Gemini đang đăng nhập và còn hiệu lực. Nếu đã hết
+              hạn, lấy header mới, cập nhật Vercel và redeploy. Với gateway,
+              kiểm tra URL HTTPS và khóa upstream.
+            </p>
+          </details>
+          <details class="guide-details">
+            <summary>Không có model hoặc chưa thấy Gemini 4 Argon</summary>
+            <p>
+              Nhấn Làm mới ở Thư viện model. Danh sách phụ thuộc quyền tài khoản
+              của provider. Chỉ tiếp tục chat khi có ít nhất một model khả dụng;
+              không đổi nhãn model khác thành Argon.
+            </p>
+          </details>
+          <details class="guide-details">
+            <summary>429 · Quá nhiều yêu cầu</summary>
+            <p>
+              Chờ hết khoảng giới hạn rồi thử lại một lần. Nếu thông báo từ
+              provider, kiểm tra quota tài khoản; bấm gửi liên tục không làm
+              tăng quota.
+            </p>
+          </details>
+          <details class="guide-details">
+            <summary>501 · Tác vụ không hỗ trợ trên Vercel</summary>
+            <p>
+              Dùng chat văn bản cho phiên đầu tiên. Video, âm nhạc và nghiên cứu
+              dài cần backend chạy liên tục; xem README trong GitHub để triển
+              khai backend phù hợp.
+            </p>
+          </details>
+        </section>
+      </section>
       <footer>
         <span>GEHIHI / YOUR AI WORKSPACE</span
         ><span>Built for curious minds <span class="brand-dot">✦</span></span>
@@ -296,7 +674,13 @@
           Nhập khóa <code>API_KEY</code> của server để xem model và bắt đầu trò
           chuyện.
         </p>
-        <label for="access-key">Khóa truy cập API</label
+        <div class="connection-help" id="connection-help" hidden>
+          <p id="connection-help-text"></p>
+        </div>
+        <button type="button" class="text-button" id="connection-guide">
+          Xem hướng dẫn & mindmap ↗
+        </button>
+        <label for="access-key">Khóa workspace (API_KEY)</label
         ><input
           type="password"
           id="access-key"
@@ -306,7 +690,8 @@
           required
         /><small
           >Khóa chỉ được giữ trong bộ nhớ của tab và xóa khi tải lại trang. Đây
-          là khóa của workspace, không phải cookie Google.</small
+          là khóa của workspace. Cookie Google và khóa Google AI Studio không
+          dùng ở ô này.</small
         >
         <p id="connect-error" class="inline-error" role="alert" hidden></p>
         <div class="dialog-actions">
