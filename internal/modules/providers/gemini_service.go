@@ -72,8 +72,8 @@ const (
 )
 
 var (
-	accessTokenRegex         = regexp.MustCompile(`"SNlM0e"\s*:\s*"([^"]+)"`)
-	accessTokenFallbackRegex = regexp.MustCompile(`\[\s*"SNlM0e"\s*,\s*"([^"]+)"\s*\]`)
+	accessTokenRegex         = regexp.MustCompile(`"(?:SNlM0e|thykhd)"\s*:\s*"([^"]+)"`)
+	accessTokenFallbackRegex = regexp.MustCompile(`\[\s*"(?:SNlM0e|thykhd)"\s*,\s*"([^"]+)"\s*\]`)
 	pushIDRegex              = regexp.MustCompile(`"qKIAYe":"([^"]+)"`)
 	buildLabelRegex          = regexp.MustCompile(`"cfb2h":"([^"]+)"`)
 	sessionIDRegex           = regexp.MustCompile(`"FdrFJe":"([^"]+)"`)

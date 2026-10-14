@@ -71,7 +71,7 @@ func New(cfg *configs.Config, log *zap.Logger) (*Runtime, error) {
 			if initErr != nil {
 				code, upstreamStatus := providers.SafeInitializationDiagnostic(initErr)
 				log.Warn("Provider initialization failed", zap.String("code", code), zap.Int("upstream_status", upstreamStatus))
-				return c.Status(503).JSON(fiber.Map{"error": fiber.Map{"message": "Khóa workspace đã được chấp nhận, nhưng chưa khởi tạo được phiên Gemini. Kiểm tra Cookie và slot tài khoản trên Vercel.", "type": "provider_unavailable", "code": code, "upstream_status": upstreamStatus}})
+				return c.Status(503).JSON(fiber.Map{"error": fiber.Map{"message": "Khóa workspace đã được chấp nhận, nhưng chưa khởi tạo được phiên Gemini. Kiểm tra trạng thái phiên và quyền tài khoản.", "type": "provider_unavailable", "code": code, "upstream_status": upstreamStatus, "account_status": providers.SafeAccountStatus(initErr)}})
 			}
 			return c.Next()
 		})

@@ -35,13 +35,24 @@ func TestSessionDiagnosticsNeverExposeAccountPageOrCredentials(t *testing.T) {
 }
 
 func TestSessionTokenAcceptsFormattedBootstrapData(t *testing.T) {
-	for _, body := range []string{`{"SNlM0e":"test-token"}`, "{\n  \"SNlM0e\" : \"test-token\"\n}", `[ "SNlM0e", "test-token" ]`} {
+	for _, body := range []string{
+		`{"SNlM0e":"test-token"}`,
+		"{\n  \"SNlM0e\" : \"test-token\"\n}",
+		`[ "SNlM0e", "test-token" ]`,
+		`{"thykhd":"test-token"}`,
+		`["thykhd", "test-token"]`,
+	} {
 		match := accessTokenRegex.FindStringSubmatch(body)
 		if len(match) < 2 {
 			match = accessTokenFallbackRegex.FindStringSubmatch(body)
 		}
 		if len(match) < 2 || match[1] != "test-token" {
-			t.Fatal("valid formatted bootstrap token was missed")
+			t.Fatalf("valid formatted bootstrap token was missed for body: %s", body)
+		}
+	}
+	for _, body := range []string{`{"dynamicKey":"AFWLunrelated_token"}`, `{"thykhd":""}`} {
+		if accessTokenRegex.MatchString(body) || accessTokenFallbackRegex.MatchString(body) {
+			t.Fatal("must not treat unrelated or empty values as session tokens")
 		}
 	}
 }

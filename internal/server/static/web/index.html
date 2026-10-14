@@ -826,6 +826,21 @@ npm run check --prefix integrations/antigravity</pre
             </p>
           </details>
           <details class="guide-details">
+            <summary>account_models_unavailable · Có token nhưng Google từ chối chọn model</summary>
+            <p>
+              Đây là phản hồi ở bước kiểm tra tài khoản, không phải lỗi build hay API_KEY.
+              Token trang không chứng minh tài khoản đã được xác thực. Mã tài khoản
+              (ví dụ 1016) chưa đủ để kết luận Cookie hết hạn hoặc tài khoản bị khóa.
+            </p>
+            <p>
+              Trong tab Gemini đang trả lời được: mở Network, xóa danh sách request cũ,
+              tải lại trang rồi gửi một tin mới. Lấy Cookie và slot từ chính request
+              vừa thành công, lưu riêng vào cấu hình; không gửi Cookie qua chat.
+              Nếu cùng phiên vẫn bị từ chối cả local và Vercel, cần kiểm tra khả năng
+              sử dụng phiên ngoài trình duyệt; redeploy lặp lại không thay đổi quyền truy cập.
+            </p>
+          </details>
+          <details class="guide-details">
             <summary>Không có model hoặc chưa thấy Gemini 4 Argon</summary>
             <p>
               Nhấn Làm mới ở Thư viện model. Danh sách phụ thuộc quyền tài khoản

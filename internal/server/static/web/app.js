@@ -254,6 +254,8 @@ async function request(path, options = {}) {
   }
   if (!response.ok) {
     const providerReasons = {
+      account_models_unavailable:
+        "Google đã trả token nhưng chưa cho phép phiên này chọn model. Khóa workspace đúng. Xem hướng dẫn lỗi tài khoản; chưa thể kết luận Cookie hết hạn.",
       session_login_required:
         "Khóa workspace đúng, nhưng Google yêu cầu đăng nhập lại phiên Gemini. Cập nhật Cookie và kiểm tra slot của cùng tài khoản trên Vercel, rồi redeploy.",
       session_token_missing:

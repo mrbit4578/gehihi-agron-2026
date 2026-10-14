@@ -160,7 +160,7 @@ func parseGeminiModels(body []byte) ([]geminiModel, error) {
 				return nil, errors.New("invalid Gemini account status")
 			}
 			if code != 1000 {
-				return nil, fmt.Errorf("Gemini account cannot select models (status %d); verify access and cookies on Gemini Web", code)
+				return nil, &SessionInitializationError{Code: "account_models_unavailable", Stage: "models", HTTPStatus: http.StatusOK, AccountStatus: code}
 			}
 		}
 		capacity, capacityField := geminiAccountCapacity(geminiArrayValue(status, 16), geminiArrayValue(status, 17))

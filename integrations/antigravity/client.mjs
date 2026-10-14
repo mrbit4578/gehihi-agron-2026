@@ -87,6 +87,8 @@ export function createClient(options = {}) {
         failure = await response.json();
       } catch {}
       const providerReasons = {
+        account_models_unavailable:
+          "Google đã trả token nhưng chưa cho phép phiên này chọn model. Khóa workspace đúng; cần đối chiếu phiên và quyền tài khoản. Chưa thể chạy Argon.",
         session_login_required:
           "Khóa workspace đúng, nhưng Google chuyển phiên Gemini về đăng nhập. Kiểm tra Cookie mới và slot tài khoản trên Vercel.",
         session_token_missing:

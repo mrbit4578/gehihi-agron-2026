@@ -10,9 +10,10 @@ import (
 // SessionInitializationError carries only safe diagnostic fields. Never attach
 // a request URL, Cookie header, account page body, or session token here.
 type SessionInitializationError struct {
-	Code       string
-	Stage      string
-	HTTPStatus int
+	Code          string
+	Stage         string
+	HTTPStatus    int
+	AccountStatus int
 }
 
 func (e *SessionInitializationError) Error() string {
@@ -43,9 +44,17 @@ func SafeInitializationDiagnostic(err error) (code string, upstreamStatus int) {
 	var detail *SessionInitializationError
 	if errors.As(err, &detail) {
 		switch detail.Code {
-		case "session_token_missing", "session_login_required", "session_network_error", "google_rate_limited", "google_access_denied", "google_verification_required", "model_discovery_failed":
+		case "session_token_missing", "session_login_required", "session_network_error", "google_rate_limited", "google_access_denied", "google_verification_required", "model_discovery_failed", "account_models_unavailable":
 			return detail.Code, detail.HTTPStatus
 		}
 	}
 	return "provider_initialization_failed", 0
+}
+
+func SafeAccountStatus(err error) int {
+	var detail *SessionInitializationError
+	if errors.As(err, &detail) && detail.Code == "account_models_unavailable" {
+		return detail.AccountStatus
+	}
+	return 0
 }

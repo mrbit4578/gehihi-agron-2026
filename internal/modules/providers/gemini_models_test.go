@@ -126,8 +126,13 @@ func TestParseGeminiModelsRejectsUnavailableSessions(t *testing.T) {
 		t.Run(fmt.Sprint(status), func(t *testing.T) {
 			fixture := modelRPCFixture(t, status, []any{8}, nil,
 				modelRPCEntry("flash-id", "Flash", "Flash", 1), modelRPCEntry("pro-id", "Pro", "Pro", 3))
-			if models, err := parseGeminiModels([]byte(fixture)); err == nil || len(models) != 0 {
+			models, err := parseGeminiModels([]byte(fixture))
+			if err == nil || len(models) != 0 {
 				t.Fatalf("unavailable session advertised selectable models: %#v, %v", models, err)
+			}
+			code, httpStatus := SafeInitializationDiagnostic(err)
+			if code != "account_models_unavailable" || httpStatus != 200 || SafeAccountStatus(err) != status {
+				t.Fatal("lost safe account diagnostic")
 			}
 		})
 	}
