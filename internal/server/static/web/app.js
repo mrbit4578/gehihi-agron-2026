@@ -171,7 +171,9 @@ function renderGuide() {
   } else if (state.connectionIssue === "provider") {
     summary = "Khóa workspace đã đúng. Phiên Gemini chưa sẵn sàng.";
     next =
-      "Lỗi nằm ở kết nối Gemini phía server. Kiểm tra thông báo cụ thể, Cookie và slot tài khoản ở bước 1; sau đó redeploy và thử tải model lại.";
+      state.providerCode === "account_models_unavailable"
+        ? `Google từ chối chọn model cho phiên trên server${state.accountStatus ? ` (mã ${state.accountStatus})` : ""}. Redeploy cùng cấu hình không giải quyết được lỗi này. Cần kiểm tra phiên và quyền truy cập Gemini.`
+        : "Lỗi nằm ở kết nối Gemini phía server. Xem thông báo cụ thể; chỉ redeploy sau khi đã sửa cấu hình.";
     tone = "blocked";
   } else if (!hasModels) {
     summary = "Server đã nhận cấu hình. Tiếp tục bước 3.";
@@ -195,7 +197,7 @@ function renderGuide() {
   $("connection-help").hidden =
     !serverNeedsSetup() && state.connectionIssue !== "provider";
   $("connection-help-text").textContent =
-    `${summary}. Cấu hình trên Vercel và redeploy trước khi kết nối.`;
+    `${summary} ${next}`;
   $("notice-connect").textContent =
     serverNeedsSetup() || state.connectionIssue === "provider"
       ? "Xem hướng dẫn ↗"
@@ -279,6 +281,12 @@ async function request(path, options = {}) {
     const error = new Error(reason);
     error.httpStatus = response.status;
     error.errorType = data?.error?.type;
+    error.providerCode = data?.error?.code;
+    error.accountStatus = Number.isInteger(data?.error?.account_status)
+      ? data.error.account_status
+      : 0;
+    if (error.providerCode === "account_models_unavailable" && error.accountStatus)
+      error.message += ` Mã tài khoản: ${error.accountStatus}.`;
     throw error;
   }
   return data;
@@ -428,6 +436,8 @@ async function connect() {
     state.connected = true;
     state.workspaceAuthenticated = true;
     state.connectionIssue = null;
+    state.providerCode = null;
+    state.accountStatus = 0;
     renderModels();
     $("sidebar-dot").classList.add("ready");
     $("header-status").querySelector(".dot").classList.add("ready");
@@ -448,6 +458,8 @@ async function connect() {
         error.errorType,
       );
     state.connectionIssue = state.workspaceAuthenticated ? "provider" : null;
+    state.providerCode = state.workspaceAuthenticated ? error.providerCode : null;
+    state.accountStatus = state.workspaceAuthenticated ? error.accountStatus : 0;
     state.models = [];
     renderModels();
     $("sidebar-dot").classList.remove("ready");
