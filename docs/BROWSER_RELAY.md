@@ -79,7 +79,10 @@ response trước khi gửi về Go. Gateway Vercel cũng dùng buffered SSE, n�
 Lượt đo 2026-10-15 với cùng prompt ngắn: local 23,5 giây, Vercel 31,7 giây trước thay đổi tiện ích.
 Đây là một cặp mẫu, không phải cam kết tăng tốc hay benchmark ổn định; tải model và lịch Chrome có thể thay đổi.
 Launcher `--local` sau thay đổi đã trả lời thật trong 19,1 giây (bao gồm khởi động CLI).
-Số này chưa đo tác động của tiện ích 1.1.0 trên tab nền; cần người dùng tải lại tiện ích trước.
+Sau khi người dùng tải lại tiện ích và ghép tab, request API thật mất 25,0 giây
+(lúc bắt đầu đã có một request đang chờ), và lượt CLI local kế tiếp mất 32,4 giây.
+Các mẫu đều trả đúng `gemini-4-argon`, nhưng chưa chứng minh giảm tổng thời gian ổn định.
+Không quy toàn bộ độ trễ cho Google: hàng đợi, tải model, context của CLI và buffered transport đều có thể đóng góp.
 
 ## Vercel
 
