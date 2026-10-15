@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"regexp"
 	"strings"
 )
 
@@ -21,6 +22,17 @@ func (e *SessionInitializationError) Error() string {
 		return fmt.Sprintf("Gemini initialization failed: %s (HTTP status %d)", e.Code, e.HTTPStatus)
 	}
 	return "Gemini initialization failed: " + e.Code
+}
+
+// Prefer the established session-token field, regardless of property order.
+// The rollout fallback must not shadow SNlM0e on pages containing both keys.
+func extractSessionToken(body string) string {
+	for _, pattern := range []*regexp.Regexp{accessTokenRegex, accessTokenFallbackRegex, alternateTokenRegex, alternateTokenArrayRegex} {
+		if match := pattern.FindStringSubmatch(body); len(match) >= 2 {
+			return match[1]
+		}
+	}
+	return ""
 }
 
 func missingSessionTokenError(response *http.Response, body string) error {

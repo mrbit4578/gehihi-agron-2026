@@ -72,8 +72,10 @@ const (
 )
 
 var (
-	accessTokenRegex         = regexp.MustCompile(`"(?:SNlM0e|thykhd)"\s*:\s*"([^"]+)"`)
-	accessTokenFallbackRegex = regexp.MustCompile(`\[\s*"(?:SNlM0e|thykhd)"\s*,\s*"([^"]+)"\s*\]`)
+	accessTokenRegex         = regexp.MustCompile(`"SNlM0e"\s*:\s*"([^"]+)"`)
+	accessTokenFallbackRegex = regexp.MustCompile(`\[\s*"SNlM0e"\s*,\s*"([^"]+)"\s*\]`)
+	alternateTokenRegex      = regexp.MustCompile(`"thykhd"\s*:\s*"([^"]+)"`)
+	alternateTokenArrayRegex = regexp.MustCompile(`\[\s*"thykhd"\s*,\s*"([^"]+)"\s*\]`)
 	pushIDRegex              = regexp.MustCompile(`"qKIAYe":"([^"]+)"`)
 	buildLabelRegex          = regexp.MustCompile(`"cfb2h":"([^"]+)"`)
 	sessionIDRegex           = regexp.MustCompile(`"FdrFJe":"([^"]+)"`)
@@ -313,12 +315,9 @@ func (c *Client) refreshSessionToken(ctx context.Context) error {
 	// Merge cookies from the init response into cookieStr
 	cookieStr = mergeCookies(cookieStr, resp.Cookies())
 
-	matches := accessTokenRegex.FindStringSubmatch(body)
-	if len(matches) < 2 {
-		matches = accessTokenFallbackRegex.FindStringSubmatch(body)
-		if len(matches) < 2 {
-			return missingSessionTokenError(resp, body)
-		}
+	token := extractSessionToken(body)
+	if token == "" {
+		return missingSessionTokenError(resp, body)
 	}
 
 	pushID := "feeds/mcudyrk2a4khkz"
@@ -344,13 +343,13 @@ func (c *Client) refreshSessionToken(ctx context.Context) error {
 	}
 	generationID := c.generationID
 	c.mu.Unlock()
-	models, err := fetchGeminiModels(ctx, hClient, matches[1], cookieStr, buildLabel, sessionID, language, generationID, c.authUser)
+	models, err := fetchGeminiModels(ctx, hClient, token, cookieStr, buildLabel, sessionID, language, generationID, c.authUser)
 	if err != nil {
 		return fmt.Errorf("failed to discover Gemini models: %w", err)
 	}
 
 	c.mu.Lock()
-	c.at = matches[1]
+	c.at = token
 	c.cookieHeader = cookieStr // save full cookie string for use in GenerateContent
 	c.pushID = pushID
 	c.buildLabel = buildLabel

@@ -42,17 +42,26 @@ func TestSessionTokenAcceptsFormattedBootstrapData(t *testing.T) {
 		`{"thykhd":"test-token"}`,
 		`["thykhd", "test-token"]`,
 	} {
-		match := accessTokenRegex.FindStringSubmatch(body)
-		if len(match) < 2 {
-			match = accessTokenFallbackRegex.FindStringSubmatch(body)
-		}
-		if len(match) < 2 || match[1] != "test-token" {
+		if extractSessionToken(body) != "test-token" {
 			t.Fatalf("valid formatted bootstrap token was missed for body: %s", body)
 		}
 	}
 	for _, body := range []string{`{"dynamicKey":"AFWLunrelated_token"}`, `{"thykhd":""}`} {
-		if accessTokenRegex.MatchString(body) || accessTokenFallbackRegex.MatchString(body) {
+		if extractSessionToken(body) != "" {
 			t.Fatal("must not treat unrelated or empty values as session tokens")
+		}
+	}
+}
+
+func TestSessionTokenPrefersPrimaryFieldRegardlessOfOrder(t *testing.T) {
+	for _, body := range []string{
+		`{"thykhd":"alternate-token","SNlM0e":"primary-token"}`,
+		`{"SNlM0e":"primary-token","thykhd":"alternate-token"}`,
+		`[["thykhd","alternate-token"],["SNlM0e","primary-token"]]`,
+		`{"thykhd":"alternate-token","data":["SNlM0e","primary-token"]}`,
+	} {
+		if extractSessionToken(body) != "primary-token" {
+			t.Fatal("rollout fallback shadowed primary session token")
 		}
 	}
 }
