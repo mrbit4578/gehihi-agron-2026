@@ -41,7 +41,9 @@ Thêm biến môi trường vào **Production** (và **Preview** nếu cần):
 | `RATE_LIMIT_WINDOW_MS` | `60000` |
 | `RATE_LIMIT_MAX_REQUESTS` | `10` |
 
-Nếu sử dụng một gateway Antigravity **đã có sẵn**, thay cấu hình cookie bằng `UPSTREAM_BASE_URL` (URL HTTPS API tương thích OpenAI, bao gồm `/v1`) và `UPSTREAM_API_KEY`. Gateway chỉ cung cấp các endpoint OpenAI; đây không phải API Antigravity chính thức và không tự tạo quyền truy cập model. URL localhost chỉ dùng được khi phát triển local, Vercel cần URL HTTPS có thể truy cập từ internet.
+Nếu sử dụng một gateway **đã có sẵn**, thay cấu hình cookie bằng `UPSTREAM_BASE_URL` (URL HTTPS API tương thích OpenAI, bao gồm `/v1`) và `UPSTREAM_API_KEY`. Đây không phải API Antigravity chính thức và không tự tạo quyền truy cập model. URL localhost chỉ dùng được khi phát triển local, Vercel cần URL HTTPS có thể truy cập từ internet.
+
+Nếu backend đó còn hỗ trợ Gemini wire format, có thể thêm `UPSTREAM_GEMINI_BASE_URL` (ví dụ `https://backend.example/gemini/v1beta`) để chuyển tiếp `/gemini/v1beta/*` cho Antigravity CLI. Backend phải thực sự hỗ trợ giao thức này; đặt URL không biến một API OpenAI thành Gemini API. Yêu cầu `streamGenerateContent` sẽ gọi `generateContent` trên backend và gửi nguyên câu trả lời thành một SSE event sau khi hoàn tất, giữ model và function calls nhưng không hiển thị từng token. Khóa backend chỉ lưu phía server. Cấu hình này là tùy chọn; chỉ bật sau khi kiểm thử backend thật, không coi tunnel thử nghiệm là môi trường production ổn định.
 
 Có thể deploy giao diện trước khi nhập thông tin provider. `/status` hiển thị trạng thái cấu hình và API từ chối yêu cầu nếu thiếu khóa hoặc provider. Sau khi thay đổi biến môi trường, **Redeploy** để function nhận cấu hình mới. Giao diện cần nhập `API_KEY` của workspace để tải model.
 

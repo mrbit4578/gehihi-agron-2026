@@ -61,6 +61,13 @@ func New(cfg *configs.Config, log *zap.Logger) (*Runtime, error) {
 		}
 		app.All("/openai/v1/*", adaptor.HTTPHandler(proxy))
 		app.All("/v1/*", adaptor.HTTPHandler(proxy))
+		if cfg.Server.UpstreamGeminiBaseURL != "" {
+			geminiProxy, err := newGeminiGateway(cfg)
+			if err != nil {
+				return nil, err
+			}
+			app.All("/gemini/v1beta/*", adaptor.HTTPHandler(geminiProxy))
+		}
 	} else {
 		var initMu sync.Mutex
 		app.Use(func(c fiber.Ctx) error {
@@ -127,7 +134,7 @@ func (r *Runtime) Close() {
 
 // The operator supplies an authenticated OpenAI-compatible gateway.
 // Configuring a URL does not create free model access or an Antigravity account.
-func newGateway(cfg *configs.Config) (http.Handler, error) {
+func newGateway(cfg *configs.Config) (*httputil.ReverseProxy, error) {
 	target, err := url.Parse(cfg.Server.UpstreamBaseURL)
 	if err != nil || target.Hostname() == "" || target.User != nil || target.RawQuery != "" || target.Fragment != "" {
 		return nil, errors.New("UPSTREAM_BASE_URL must be an absolute API base URL without credentials or query parameters")

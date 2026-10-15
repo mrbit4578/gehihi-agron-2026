@@ -48,12 +48,13 @@ type OpenAIConfig struct {
 }
 
 type ServerConfig struct {
-	Port            string
-	APIKey          string
-	AllowedOrigins  []string
-	UpstreamBaseURL string
-	UpstreamAPIKey  string
-	Serverless      bool
+	Port                  string
+	APIKey                string
+	AllowedOrigins        []string
+	UpstreamBaseURL       string
+	UpstreamGeminiBaseURL string
+	UpstreamAPIKey        string
+	Serverless            bool
 }
 
 const (
@@ -88,6 +89,7 @@ func load(allowUnconfigured bool) (*Config, error) {
 	cfg.Server.Port = getEnv("PORT", defaultServerPort)
 	cfg.Server.APIKey = strings.TrimSpace(os.Getenv("API_KEY"))
 	cfg.Server.UpstreamBaseURL = strings.TrimSpace(os.Getenv("UPSTREAM_BASE_URL"))
+	cfg.Server.UpstreamGeminiBaseURL = strings.TrimSpace(os.Getenv("UPSTREAM_GEMINI_BASE_URL"))
 	cfg.Server.UpstreamAPIKey = strings.TrimSpace(os.Getenv("UPSTREAM_API_KEY"))
 	cfg.Server.Serverless = os.Getenv("VERCEL") == "1"
 	for _, origin := range strings.Split(os.Getenv("ALLOWED_ORIGINS"), ",") {
