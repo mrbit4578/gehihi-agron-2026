@@ -51,3 +51,13 @@ Thống kê reset khi backend khởi động lại, không phải dữ liệu bi
 
 Các kiểm thử backend dùng hai tài khoản mô phỏng để kiểm tra xoay, ghim lịch sử, không replay HTTP 429, không rò Cookie, mã hóa/chống sửa vault, khôi phục/xóa và SSE/độ trễ.
 Không coi các kiểm thử đó là bằng chứng hai tài khoản Google thật đã được cấp Argon; cần nhập và xác minh các Cookie thật của người dùng.
+
+Kiểm chứng triển khai 2026-10-15:
+
+- Go test toàn bộ, go vet và 14 kiểm thử Node đạt; bootstrap Linux theo cách rewrite module của Vercel biên dịch đạt.
+- Kiểm thử race local không chạy được vì Go trên máy đang tắt CGO và chưa có compiler C trong PATH; không ghi nhận là đã đạt race detector.
+- Vercel đã triển khai màn hình `/#accounts`; API online list/select trả 200 với khóa đúng, thiếu khóa trả 401, bật xoay khi chưa đủ hai tài khoản trả 409.
+- Cookie trong file local bị Google trả `account_models_unavailable` và không được kích hoạt. Bản ghi thử đã được xóa; phiên Chrome mặc định được giữ lại.
+- Backend mới đã trả lời Argon thật qua MCP ở lần thử local. Lần thử Antigravity qua tunnel sau triển khai gặp HTTP 524 khi có nhiều request đang chờ; chưa xác nhận đã khắc phục timeout tunnel. Có thể dùng launcher `--local` trên cùng máy để tránh chặng tunnel.
+- Tại lần kiểm tra sau khi người dùng báo đã thêm hai tài khoản, cả API local và online vẫn chỉ trả một bản ghi `default`; chưa thể xác nhận xoay hai tài khoản Google thật.
+- Công cụ Browser hiện chỉ có backend MCP Apps với danh sách tab trống, nên chưa kiểm tra trực quan giao diện trong trình duyệt; đã kiểm tra HTML/JS/CSS được phục vụ đúng trên Production.
