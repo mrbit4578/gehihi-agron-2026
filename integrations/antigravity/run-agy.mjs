@@ -8,6 +8,14 @@ import { parse, modify, applyEdits } from "jsonc-parser";
 import { createClient, defaultEnvFile, validateBaseURL } from "./client.mjs";
 
 const projectRoot = fileURLToPath(new URL("../../", import.meta.url));
+export function connectionOptions(args) {
+  const local = args.includes("--local");
+  return {
+    args: args.filter(arg => arg !== "--local"),
+    clientOptions: local ? { baseURL: "http://127.0.0.1:54984/openai/v1" } : {},
+    geminiBase: local ? "http://127.0.0.1:54984/gemini" : undefined,
+  };
+}
 export async function configureCLI({ home = homedir(), root = projectRoot,
   setup = false, model = "gemini-4-argon" } = {}) {
   if (!/^[a-zA-Z0-9][a-zA-Z0-9._-]*$/.test(model))
@@ -20,6 +28,9 @@ export async function configureCLI({ home = homedir(), root = projectRoot,
   if (setup) targets.push([path.join(root, ".vscode", "settings.json"), [
     [["terminal.integrated.profiles.windows", "Gehihi Argon"], {
       path: process.execPath, args: [fileURLToPath(import.meta.url)],
+    }],
+    [["terminal.integrated.profiles.windows", "Gehihi Argon local"], {
+      path: process.execPath, args: [fileURLToPath(import.meta.url), "--local"],
     }],
   ]]);
   const prepared = [];
@@ -68,18 +79,19 @@ async function main() {
       secrets_saved_to_settings: false }, null, 2));
     return;
   }
-  const client = createClient();
+  const connection = connectionOptions(process.argv.slice(2));
+  const client = createClient(connection.clientOptions);
   await verifyModel({ client, model });
   const key = process.env.GEHIHI_API_KEY?.trim() || parseEnv(
     await readFile(process.env.GEHIHI_ENV_FILE || defaultEnvFile, "utf8"),
   ).API_KEY?.trim();
-  const geminiBase = validateBaseURL(process.env.GEHIHI_GEMINI_BASE_URL ||
+  const geminiBase = validateBaseURL(connection.geminiBase || process.env.GEHIHI_GEMINI_BASE_URL ||
     new URL("/gemini", client.baseURL).href);
   const childEnv = { ...process.env, GEMINI_API_KEY: key,
     GOOGLE_GEMINI_BASE_URL: geminiBase };
   for (const name of ["GEMINI_COOKIES", "GEMINI_AUTH_USER", "UPSTREAM_API_KEY", "API_KEY", "GOOGLE_API_KEY", "GEHIHI_API_KEY"])
     delete childEnv[name];
-  const supplied = process.argv.slice(2);
+  const supplied = connection.args;
   if (supplied.some(arg => arg === "--model" || arg.startsWith("--model=")))
     throw new Error("Chọn model bằng GEHIHI_MODEL để launcher kiểm tra quyền trước khi chạy.");
   const args = supplied[0] === "models" ? supplied : ["--model", model, ...supplied];

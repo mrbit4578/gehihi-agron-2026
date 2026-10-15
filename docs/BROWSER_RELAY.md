@@ -58,6 +58,29 @@ Phải thấy `gemini-4-argon` trong danh sách provider và câu trả lời th
 Trạng thái “đã ghép tab” chỉ chứng minh relay nhận heartbeat, không chứng minh inference thành công.
 Khi chưa ghép, backend trả `browser_bridge_offline`, không tạo danh sách model giả.
 
+## Giảm độ trễ khi dùng trên cùng máy
+
+```powershell
+node .\integrations\antigravity\run-agy.mjs --local
+```
+
+Hoặc chọn terminal profile **Gehihi Argon local** sau khi chạy `run-agy.mjs --setup`.
+`--local` đặt đồng thời endpoint preflight OpenAI và endpoint Gemini về backend 54984,
+giữ nguyên Argon và xác thực workspace. Cờ này không được chuyển cho agy.
+Nếu backend local tắt, launcher báo lỗi; không âm thầm gửi sang endpoint khác.
+Không có `--local` thì launcher vẫn dùng cấu hình online hiện có.
+
+Tiện ích 1.1.0 dùng long poll tối đa 20 giây: server trả ngay khi có job, không chờ đủ 20 giây.
+Sau mỗi lượt, tiện ích nối lại; alarm vẫn phục hồi khi worker/tab bị dừng.
+Relay hỗ trợ tiện ích cũ, nhưng cần tải lại tại `chrome://extensions` để bật cơ chế mới.
+Không giảm thời gian suy luận của Google hoặc giả lập token: browser transport hiện đợi toàn bộ
+response trước khi gửi về Go. Gateway Vercel cũng dùng buffered SSE, nên câu dài chưa xuất hiện từng token.
+
+Lượt đo 2026-10-15 với cùng prompt ngắn: local 23,5 giây, Vercel 31,7 giây trước thay đổi tiện ích.
+Đây là một cặp mẫu, không phải cam kết tăng tốc hay benchmark ổn định; tải model và lịch Chrome có thể thay đổi.
+Launcher `--local` sau thay đổi đã trả lời thật trong 19,1 giây (bao gồm khởi động CLI).
+Số này chưa đo tác động của tiện ích 1.1.0 trên tab nền; cần người dùng tải lại tiện ích trước.
+
 ## Vercel
 
 Browser relay chạy trên máy, không chạy trên Vercel. Chỉ sau khi local và CLI chat thật thành công,

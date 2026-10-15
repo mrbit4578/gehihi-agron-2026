@@ -71,3 +71,28 @@ test("protocol blocks non-Gemini targets, account operations and injected creden
   assert.throws(() => validateJob(request, "1"), /browser_account_changed/);
   assert.throws(() => validateJob(request, ""), /browser_account_changed/);
 });
+
+test("waiting browser receives a new job without a second polling request", async (t) => {
+  const { call } = await setup(t, { pollTimeoutMs: 1000 });
+  await call("/heartbeat", pairing);
+  const waiting = call(`/next?client_id=${pairing.client_id}&wait=1`);
+  await delay(20);
+  const pending = call("/fetch", request);
+  const response = await waiting;
+  assert.equal(response.status, 200);
+  const job = await response.json();
+  assert.equal(job.request.url, request.url);
+  await call("/result", { id: job.id, client_id: pairing.client_id, reply: { status: 200, body: "ready", content_type: "text/plain" } });
+  assert.equal((await (await pending).json()).body, "ready");
+});
+
+test("idle long poll ends cleanly and account change cancels an outstanding wait", async (t) => {
+  const { call } = await setup(t, { pollTimeoutMs: 80 });
+  await call("/heartbeat", pairing);
+  assert.equal((await call(`/next?client_id=${pairing.client_id}&wait=1`)).status, 204);
+  const waiting = call(`/next?client_id=${pairing.client_id}&wait=1`);
+  await delay(20);
+  await call("/heartbeat", { ...pairing, account_slot: "1" });
+  assert.equal((await waiting).status, 409);
+  assert.equal((await call(`/next?client_id=${pairing.client_id}`)).status, 204);
+});

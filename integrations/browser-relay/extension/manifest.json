@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Gehihi Gemini Session Bridge",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Send Gehihi chat requests through your selected, signed-in Gemini tab. Does not read or export cookies.",
   "minimum_chrome_version": "120",
   "permissions": ["storage", "scripting", "alarms"],

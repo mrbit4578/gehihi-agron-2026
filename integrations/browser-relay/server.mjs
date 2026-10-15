@@ -17,11 +17,17 @@ async function readJSON(req, max = 4 * 1024 * 1024) {
   return JSON.parse(Buffer.concat(chunks).toString("utf8"));
 }
 
-export function createRelay({ apiKey, jobTimeoutMs = 180000, now = Date.now } = {}) {
+export function createRelay({ apiKey, jobTimeoutMs = 180000, pollTimeoutMs = 20000, now = Date.now } = {}) {
   if (typeof apiKey !== "string" || apiKey.length < 16) throw new Error("workspace_key_required");
   const expected = createHash("sha256").update(apiKey).digest();
   const jobs = new Map(); const queue = [];
   let client = null;
+  let pendingPoll = null;
+  const takeJob = () => {
+    let job;
+    while (queue.length && !job) job = jobs.get(queue.shift());
+    return job;
+  };
   // Chrome can throttle background-tab timers; its extension alarm wakes every 30s.
   const connected = () => Boolean(client && now() - client.seen < 90000);
   const server = http.createServer(async (req, res) => {
@@ -40,6 +46,7 @@ export function createRelay({ apiKey, jobTimeoutMs = 180000, now = Date.now } = 
         const input = await readJSON(req);
         if (client && client.id === input.client_id) {
           for (const job of jobs.values()) job.finish(503, { error: "browser_disconnected" });
+          pendingPoll?.finish(409, { error: "pairing_required" });
           client = null;
         }
         return json(res, 200, { connected: connected() });
@@ -50,16 +57,24 @@ export function createRelay({ apiKey, jobTimeoutMs = 180000, now = Date.now } = 
             typeof input.account_slot !== "string" || (input.account_slot && !/^\d+$/.test(input.account_slot))) return json(res, 400, { error: "invalid_pairing" });
         if (client && (client.id !== input.client_id || client.slot !== input.account_slot)) {
           for (const job of jobs.values()) job.finish(409, { error: "browser_account_changed" });
+          pendingPoll?.finish(409, { error: "pairing_required" });
         }
         client = { id: input.client_id, slot: input.account_slot, seen: now() };
         return json(res, 200, { connected: true });
       }
       if (req.method === "GET" && url.pathname === "/next") {
         if (!connected() || url.searchParams.get("client_id") !== client.id) return json(res, 409, { error: "pairing_required" });
-        let job;
-        while (queue.length && !job) job = jobs.get(queue.shift());
-        if (!job) { res.writeHead(204, { "Cache-Control": "no-store" }); return res.end(); }
-        return json(res, 200, { id: job.id, request: job.request });
+        const job = takeJob();
+        if (job) return json(res, 200, { id: job.id, request: job.request });
+        if (url.searchParams.get("wait") !== "1") { res.writeHead(204, { "Cache-Control": "no-store" }); return res.end(); }
+        if (pendingPoll) return json(res, 409, { error: "poll_already_pending" });
+        const poll = { clientId: client.id };
+        const cleanup = () => { clearTimeout(poll.timer); if (pendingPoll === poll) pendingPoll = null; };
+        poll.finish = (status, data) => { cleanup(); if (status === 204) { if (!res.destroyed) { res.writeHead(204); res.end(); } } else json(res, status, data); };
+        poll.timer = setTimeout(() => poll.finish(204), pollTimeoutMs);
+        res.once("close", cleanup);
+        pendingPoll = poll;
+        return;
       }
       if (req.method === "POST" && url.pathname === "/result") {
         const input = await readJSON(req, 64 * 1024 * 1024);
@@ -83,6 +98,10 @@ export function createRelay({ apiKey, jobTimeoutMs = 180000, now = Date.now } = 
         job.timer = setTimeout(() => job.finish(504, { error: "browser_timeout" }), jobTimeoutMs);
         res.once("close", cleanup);
         jobs.set(id, job); queue.push(id);
+        if (pendingPoll && pendingPoll.clientId === client.id) {
+          const ready = takeJob();
+          pendingPoll.finish(200, { id: ready.id, request: ready.request });
+        }
         return;
       }
       json(res, 404, { error: "not_found" });
@@ -90,7 +109,7 @@ export function createRelay({ apiKey, jobTimeoutMs = 180000, now = Date.now } = 
       json(res, 400, { error: "invalid_request" });
     }
   });
-  return { server, close() { for (const job of jobs.values()) job.finish(503, { error: "relay_stopped" }); server.close(); } };
+  return { server, close() { pendingPoll?.finish(503, { error: "relay_stopped" }); for (const job of jobs.values()) job.finish(503, { error: "relay_stopped" }); server.close(); } };
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

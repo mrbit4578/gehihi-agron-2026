@@ -6,7 +6,7 @@ async function relay(pair, path, body) {
     method: body ? "POST" : "GET",
     headers: { Authorization: `Bearer ${pair.key}`, "Content-Type": "application/json" },
     body: body ? JSON.stringify(body) : undefined,
-    cache: "no-store", redirect: "error", signal: AbortSignal.timeout(10000),
+    cache: "no-store", redirect: "error", signal: AbortSignal.timeout(path.startsWith("/next?") ? 25000 : 10000),
   });
   if (response.status === 204) return null;
   if (!response.ok) throw new Error("relay_unavailable");
@@ -40,14 +40,17 @@ async function executeBrowserFetch(request) {
 }
 
 async function poll(sender) {
+  if (busy) return;
   const { pairing } = await chrome.storage.session.get("pairing");
   if (!pairing || sender.tab?.id !== pairing.tabId || new URL(sender.url || "").origin !== "https://gemini.google.com") return;
   const slot = accountSlot(sender.url);
-  await relay(pairing, "/heartbeat", { client_id: pairing.id, account_slot: slot });
   if (busy) return;
   busy = true;
+  let continuePolling = false;
   try {
-    const job = await relay(pairing, `/next?client_id=${encodeURIComponent(pairing.id)}`);
+    await relay(pairing, "/heartbeat", { client_id: pairing.id, account_slot: slot });
+    const job = await relay(pairing, `/next?client_id=${encodeURIComponent(pairing.id)}&wait=1`);
+    continuePolling = true;
     if (!job) return;
     let reply;
     try {
@@ -57,7 +60,14 @@ async function poll(sender) {
       if (!reply || (reply.body && reply.body.length > MAX_BODY)) reply = { error: "invalid_browser_reply" };
     } catch { reply = { error: "browser_fetch_failed" }; }
     await relay(pairing, "/result", { id: job.id, client_id: pairing.id, reply });
-  } finally { busy = false; }
+  } finally {
+    busy = false;
+    // Re-arm immediately after a bounded long poll. No background-tab timer gap.
+    // Stop on relay failure; content messages/alarms provide bounded recovery.
+    if (continuePolling) setTimeout(() => {
+      chrome.tabs.get(pairing.tabId).then(tab => poll({ tab, url: tab.url })).catch(() => {});
+    }, 0);
+  }
 }
 
 chrome.runtime.onMessage.addListener((message, sender, respond) => {

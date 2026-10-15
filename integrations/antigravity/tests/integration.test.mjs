@@ -10,7 +10,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { createClient, validateBaseURL } from "../client.mjs";
 import { install } from "../install.mjs";
-import { configureCLI, verifyModel } from "../run-agy.mjs";
+import { configureCLI, verifyModel, connectionOptions } from "../run-agy.mjs";
 
 async function fixture(t) {
   const scratch = await mkdtemp(path.join(tmpdir(), "gehihi-mcp-test-"));
@@ -240,10 +240,21 @@ test("CLI configuration preserves other models and terminal profiles without sto
   const terminals = parse(await readFile(editor, "utf8"))["terminal.integrated.profiles.windows"];
   assert.equal(terminals.PowerShell.path, "pwsh.exe");
   assert.ok(terminals["Gehihi Argon"].args[0].endsWith("run-agy.mjs"));
+  assert.equal(terminals["Gehihi Argon local"].args[1], "--local");
   assert.ok(!updated.includes("local-test-secret"));
   await writeFile(editor, "invalid-json");
   await assert.rejects(configureCLI({ home: f.scratch, root: f.scratch, setup: true, model: "another" }), /JSONC/);
   assert.equal(await readFile(settings, "utf8"), updated);
+});
+
+test("local CLI route selects both local protocols and preserves prompt arguments", () => {
+  const local = connectionOptions(["--local", "-p", "Xin chào"]);
+  assert.deepEqual(local.args, ["-p", "Xin chào"]);
+  assert.equal(local.clientOptions.baseURL, "http://127.0.0.1:54984/openai/v1");
+  assert.equal(local.geminiBase, "http://127.0.0.1:54984/gemini");
+  const online = connectionOptions(["-p", "test"]);
+  assert.deepEqual(online.clientOptions, {});
+  assert.equal(online.geminiBase, undefined);
 });
 
 test("CLI preflight uses authenticated provider models and refuses unavailable models", async (t) => {
