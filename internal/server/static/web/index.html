@@ -38,6 +38,9 @@
           <span class="nav-icon">⌘</span><span>Kết nối API</span
           ><span class="nav-hint">03</span>
         </button>
+        <button class="nav-item" data-view="accounts" aria-label="Tài khoản và độ trễ">
+          <span class="nav-icon">⇄</span><span>Tài khoản &amp; độ trễ</span><span class="nav-hint">ACC</span>
+        </button>
         <button
           class="nav-item"
           data-view="guide"
@@ -84,6 +87,36 @@
           >
         </div>
       </header>
+      <section id="view-accounts" class="view accounts-view" hidden>
+        <div class="accounts-heading">
+          <div><span class="eyebrow">ACCOUNT CONTROL</span><h1>Một workspace. Nhiều tài khoản<span class="brand-dot">.</span></h1><p>Chọn phiên Gemini cho web và Antigravity. Cùng một API key, cập nhật ở request tiếp theo.</p></div>
+          <button id="accounts-refresh" class="quiet-button">↻ Làm mới</button>
+        </div>
+        <div class="account-metrics">
+          <article><span class="eyebrow">ĐANG SỬ DỤNG</span><strong id="account-active">Chưa tải</strong><small id="account-mode">Chọn tài khoản hoặc bật xoay tự động</small></article>
+          <article><span class="eyebrow">ĐỘ TRỄ BACKEND GẦN NHẤT</span><strong id="account-latency">Chưa có mẫu</strong><small>Thời gian hoàn tất request, gồm suy luận</small></article>
+          <article><span class="eyebrow">CREDIT GEMINI</span><strong>Chưa có dữ liệu</strong><small>Chưa có nguồn số dư được xác minh từ Google. Số lượt gọi không phải credit.</small></article>
+        </div>
+        <p id="accounts-feedback" class="account-feedback" role="status">Nhập khóa workspace trong Cấu hình kết nối, sau đó bấm Làm mới.</p>
+        <div class="accounts-layout">
+          <form id="account-form" class="account-import" autocomplete="off">
+            <span class="eyebrow">THÊM PHIÊN GEMINI</span><h2>Nhập Cookie tài khoản</h2>
+            <p>Đăng nhập Gemini bên ngoài, gửi một tin thành công rồi lấy Cookie header của chính tài khoản đó.</p>
+            <label for="account-label">Tên dễ nhớ</label><input id="account-label" maxlength="80" placeholder="Ví dụ: Tài khoản cá nhân" required>
+            <label for="account-slot">Slot tài khoản (tùy chọn)</label><input id="account-slot" inputmode="numeric" pattern="[0-9]{1,2}" maxlength="2" placeholder="/u/2/ → nhập 2; không có thì để trống">
+            <label for="account-cookie">Cookie request header</label><textarea id="account-cookie" rows="5" maxlength="65536" spellcheck="false" autocapitalize="off" placeholder="Dán toàn bộ giá trị Cookie, không dán cURL hoặc Response" required></textarea>
+            <small>Cookie gửi qua HTTPS và lưu mã hóa ở backend trên máy. Kiểm tra sẽ gửi một tin ngắn tới Argon. Không lưu Cookie vào trình duyệt. Người có khóa workspace có quyền quản lý các phiên này.</small>
+            <label class="account-check"><input id="account-activate" type="checkbox" checked> Dùng ngay sau khi xác minh quyền Argon</label>
+            <button id="account-submit" class="primary-button" type="submit">Kiểm tra &amp; thêm tài khoản ↗</button>
+          </form>
+          <div class="account-directory">
+            <div class="account-directory-head"><div><span class="eyebrow">DANH SÁCH PHIÊN</span><h2>Tài khoản của workspace</h2></div><button id="account-rotation" class="quiet-button" aria-pressed="false">Bật xoay tự động</button></div>
+            <p class="account-explanation">Xoay lần lượt ở cuộc trò chuyện mới; lịch sử cùng tin nhắn mở đầu được giữ trên một tài khoản, kể cả gọi công cụ. Không gửi lại request lỗi. Khi đổi thủ công, nên bắt đầu cuộc trò chuyện mới trong Antigravity.</p>
+            <div id="account-list" class="account-list"><p>Chưa tải danh sách tài khoản.</p></div>
+            <small id="account-storage"></small>
+          </div>
+        </div>
+      </section>
       <section id="view-chat" class="view chat-view">
         <div class="chat-toolbar">
           <div>

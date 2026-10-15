@@ -11,3 +11,4 @@ assets
 *.exe
 *.log
 **/*_test.go
+.accounts/

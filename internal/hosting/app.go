@@ -28,9 +28,14 @@ type Runtime struct {
 	App        *fiber.App
 	Client     *providers.Client
 	controller *gemini.GeminiController
+	accounts   *accountManager
 }
 
 func New(cfg *configs.Config, log *zap.Logger) (*Runtime, error) {
+	return newRuntime(cfg, log, true)
+}
+
+func newRuntime(cfg *configs.Config, log *zap.Logger, manageAccounts bool) (*Runtime, error) {
 	app := server.NewGeminiWebToAPI(log, cfg)
 	client := providers.NewClient(cfg, log)
 	runtime := &Runtime{App: app, Client: client}
@@ -69,6 +74,15 @@ func New(cfg *configs.Config, log *zap.Logger) (*Runtime, error) {
 			app.All("/gemini/v1beta/*", adaptor.HTTPHandler(geminiProxy))
 		}
 	} else {
+		if manageAccounts && !cfg.Server.Serverless {
+			manager, err := newAccountManager(cfg, log, client)
+			if err != nil {
+				runtime.Close()
+				return nil, err
+			}
+			runtime.accounts = manager
+			manager.register(app)
+		}
 		var initMu sync.Mutex
 		app.Use(func(c fiber.Ctx) error {
 			if !server.IsAPIPath(c.Path()) {
@@ -126,6 +140,9 @@ func unsupportedServerlessPath(path string) bool {
 }
 
 func (r *Runtime) Close() {
+	if r.accounts != nil {
+		r.accounts.close()
+	}
 	if r.controller != nil {
 		r.controller.Close()
 	}

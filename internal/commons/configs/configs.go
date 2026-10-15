@@ -35,6 +35,7 @@ type GeminiConfig struct {
 	Cookies         string
 	Temporary       bool
 	BrowserRelayURL string
+	Ephemeral       bool // managed accounts keep authentication cache in memory only
 }
 
 type ClaudeConfig struct {
@@ -58,6 +59,7 @@ type ServerConfig struct {
 	UpstreamGeminiBaseURL string
 	UpstreamAPIKey        string
 	Serverless            bool
+	AccountStorePath      string
 }
 
 const (
@@ -96,6 +98,9 @@ func load(allowUnconfigured bool) (*Config, error) {
 	cfg.Server.UpstreamGeminiBaseURL = strings.TrimSpace(os.Getenv("UPSTREAM_GEMINI_BASE_URL"))
 	cfg.Server.UpstreamAPIKey = strings.TrimSpace(os.Getenv("UPSTREAM_API_KEY"))
 	cfg.Server.Serverless = os.Getenv("VERCEL") == "1"
+	if !cfg.Server.Serverless {
+		cfg.Server.AccountStorePath = getEnv("GEHIHI_ACCOUNT_STORE", ".accounts/vault.enc")
+	}
 	for _, origin := range strings.Split(os.Getenv("ALLOWED_ORIGINS"), ",") {
 		if origin = strings.TrimSpace(origin); origin != "" && origin != "*" {
 			cfg.Server.AllowedOrigins = append(cfg.Server.AllowedOrigins, origin)

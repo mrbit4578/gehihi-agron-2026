@@ -18,6 +18,7 @@ const labels = {
   chat: "Không gian chat",
   models: "Thư viện model",
   api: "Kết nối API",
+  accounts: "Tài khoản & độ trễ",
   guide: "Hướng dẫn sử dụng",
 };
 let toastTimer;
@@ -39,6 +40,7 @@ function setView(view, updateHash = true) {
     else el.removeAttribute("aria-current");
   });
   $("page-title").textContent = labels[view];
+  if (view === "accounts") void loadAccounts();
   if (updateHash && location.hash !== `#${view}`)
     history.pushState(null, "", `#${view}`);
 }
@@ -720,6 +722,96 @@ $("refresh-models").addEventListener("click", async () => {
     toast(error.message);
   }
 });
+let accountSnapshot = null;
+let accountActionBusy = false;
+const accountStatusLabels = { ready: "Đã xác minh", unverified: "Cần kiểm tra", checking: "Đang kiểm tra", invalid: "Phiên chưa dùng được", no_argon: "Chưa có Argon", limited: "Đang giới hạn" };
+function accountTime(ms) { return typeof ms === "number" ? `${(ms / 1000).toFixed(1)} s` : "Chưa có mẫu"; }
+function accountMessage(text, error = false) {
+  $("accounts-feedback").textContent = text;
+  $("accounts-feedback").classList.toggle("is-error", error);
+}
+function renderAccounts(data) {
+  accountSnapshot = data;
+  const active = data.accounts.find(account => account.id === data.active_id);
+  $("account-active").textContent = active?.label || "Chưa chọn";
+  $("account-mode").textContent = data.rotation ? "Xoay lần lượt tài khoản đã xác minh" : "Chọn thủ công · áp dụng request tiếp theo";
+  $("account-latency").textContent = accountTime(active?.last_latency_ms);
+  $("account-rotation").textContent = data.rotation ? "Tắt xoay tự động" : "Bật xoay tự động";
+  $("account-rotation").setAttribute("aria-pressed", String(data.rotation));
+  $("account-storage").textContent = data.persistent ? "Kho mã hóa trên máy · sau khi backend khởi động lại cần xác minh tài khoản trước khi chọn. Thống kê tính từ lúc backend chạy." : "Phiên lưu trong bộ nhớ backend hiện tại. Thống kê tính từ lúc backend chạy.";
+  $("account-list").replaceChildren();
+  for (const account of data.accounts) {
+    const card = document.createElement("article"); card.className = "account-entry";
+    if (account.id === data.active_id) card.classList.add("selected");
+    const heading = document.createElement("div"); heading.className = "account-entry-title";
+    const name = document.createElement("strong"); name.textContent = account.label;
+    const badge = document.createElement("span"); badge.className = "account-badge";
+    badge.textContent = accountStatusLabels[account.status] || account.status;
+    if (account.status === "ready") badge.classList.add("ready");
+    heading.append(name, badge); card.append(heading);
+    const details = document.createElement("p");
+    details.textContent = `${account.source === "cookie" ? `Cookie · slot ${account.slot || "mặc định"}` : "Phiên đang cấu hình trên backend"} · ${account.requests} lượt gọi · ${account.errors} lỗi HTTP · ${account.inflight} đang chạy`;
+    const latency = document.createElement("p"); latency.textContent = `Gần nhất: ${accountTime(account.last_latency_ms)} · Trung bình: ${accountTime(account.average_latency_ms)}`;
+    card.append(details, latency);
+    if (account.code) {
+      const note = document.createElement("p"); note.className = "account-error";
+      note.textContent = `Mã kiểm tra: ${account.code}. Cookie đã lưu nhưng chưa đủ để chạy Argon. Kiểm tra đúng phiên / slot; phiên Chrome đang dùng vẫn độc lập.`;
+      card.append(note);
+    }
+    const actions = document.createElement("div"); actions.className = "account-entry-actions";
+    const button = (label, action, disabled = false) => {
+      const el = document.createElement("button"); el.type = "button"; el.className = "quiet-button"; el.textContent = label; el.disabled = disabled;
+      el.addEventListener("click", () => void accountAction(action)); actions.append(el);
+    };
+    button(account.id === data.active_id ? "Đang dùng" : "Sử dụng", async () => {
+      await request("/openai/v1/accounts/select", { method: "POST", body: JSON.stringify({ id: account.id }) });
+      $("new-chat").click();
+      if (!state.busy && !state.connecting) await connect();
+    }, account.id === data.active_id || (account.id !== "default" && account.status !== "ready"));
+    if (account.id !== "default") {
+      button("Kiểm tra lại", () => request(`/openai/v1/accounts/${encodeURIComponent(account.id)}/verify`, { method: "POST" }), account.inflight > 0 || account.status === "checking");
+      button("Xóa", () => request(`/openai/v1/accounts/${encodeURIComponent(account.id)}`, { method: "DELETE" }), account.inflight > 0 || account.status === "checking");
+    }
+    card.append(actions); $("account-list").append(card);
+  }
+}
+async function loadAccounts() {
+  if (!state.key) { accountMessage("Mở Cấu hình kết nối và nhập khóa workspace, rồi bấm Làm mới."); return; }
+  try {
+    const start = performance.now();
+    const data = await request("/openai/v1/accounts");
+    if (!Array.isArray(data.accounts)) throw new Error("Backend chưa hỗ trợ quản lý tài khoản. Cần cập nhật backend trên máy.");
+    renderAccounts(data);
+    accountMessage(`Đã đồng bộ tài khoản · API quản lý: ${Math.round(performance.now() - start)} ms. Độ trễ suy luận hiển thị riêng theo tài khoản.`);
+  } catch (error) { accountMessage(error.message, true); }
+}
+async function accountAction(action) {
+  if (accountActionBusy) return;
+  if (!state.key) { showSettings(); return; }
+  if (state.busy || state.connecting) { toast("Chờ request hiện tại hoàn tất trước khi đổi tài khoản."); return; }
+  accountActionBusy = true;
+  $("account-submit").disabled = true; $("account-rotation").disabled = true;
+  accountMessage("Đang xử lý… Kiểm tra phiên Google có thể mất tới 90 giây.");
+  try { await action(); await loadAccounts(); }
+  catch (error) { accountMessage(error.message, true); }
+  finally { accountActionBusy = false; $("account-submit").disabled = false; $("account-rotation").disabled = false; }
+}
+$("accounts-refresh").addEventListener("click", () => void loadAccounts());
+$("account-rotation").addEventListener("click", () => void accountAction(() => request("/openai/v1/accounts/rotation", { method: "POST", body: JSON.stringify({ enabled: !accountSnapshot?.rotation }) })));
+$("account-form").addEventListener("submit", event => {
+  event.preventDefault();
+  if (accountActionBusy || state.busy || state.connecting) { toast("Chờ yêu cầu hiện tại hoàn tất."); return; }
+  if (!state.key) { showSettings(); return; }
+  const payload = { label: $("account-label").value.trim(), slot: $("account-slot").value.trim(), cookie: $("account-cookie").value.trim(), activate: $("account-activate").checked };
+  $("account-cookie").value = "";
+  void accountAction(async () => {
+    const result = await request("/openai/v1/accounts", { method: "POST", body: JSON.stringify(payload) });
+    payload.cookie = "";
+    if (result.activated) { $("new-chat").click(); await connect(); }
+    toast(result.account.status === "ready" ? "Đã xác minh quyền Argon" : "Đã lưu. Phiên chưa được Google chấp nhận; xem mã lỗi trong danh sách.");
+  }).finally(() => { payload.cookie = ""; });
+});
+setInterval(() => { if (!document.hidden && !$("view-accounts").hidden && state.key && !accountActionBusy) void loadAccounts(); }, 15000);
 updateExamples();
 updateControls();
 renderGuide();

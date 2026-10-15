@@ -53,6 +53,7 @@ type Client struct {
 	cachedModels     []geminiModel
 	defaultTemporary bool
 	cacheDir         string
+	ephemeral        bool
 	browserRelay     *browserRelayTransport
 	refreshOnce      sync.Once
 	closeOnce        sync.Once
@@ -116,9 +117,13 @@ func NewClient(cfg *configs.Config, log *zap.Logger) *Client {
 		maxRetries:             cfg.Gemini.MaxRetries,
 		log:                    log,
 		defaultTemporary:       cfg.Gemini.Temporary,
+		ephemeral:              cfg.Gemini.Ephemeral,
 	}
 	if cfg.Gemini.BrowserRelayURL != "" {
 		result.browserRelay = &browserRelayTransport{baseURL: cfg.Gemini.BrowserRelayURL, key: cfg.Server.APIKey}
+		result.autoRefresh = false
+	}
+	if cfg.Gemini.Ephemeral {
 		result.autoRefresh = false
 	}
 	return result
@@ -1454,6 +1459,9 @@ func mergeCookieHeaders(headers ...string) string {
 
 // LoadCachedCookies attempts to read the saved 1PSIDTS from disk
 func (c *Client) LoadCachedCookies() (string, error) {
+	if c.ephemeral {
+		return "", os.ErrNotExist
+	}
 	snapshot := c.GetCookies()
 	if snapshot.Secure1PSID == "" {
 		return "", errors.New("no PSID available")
@@ -1476,6 +1484,9 @@ func (c *Client) LoadCachedCookies() (string, error) {
 
 // SaveCachedCookies writes the current 1PSIDTS to disk
 func (c *Client) SaveCachedCookies() error {
+	if c.ephemeral {
+		return nil
+	}
 	snapshot := c.GetCookies()
 	if snapshot.Secure1PSID == "" || snapshot.Secure1PSIDTS == "" {
 		return nil
@@ -1500,6 +1511,9 @@ func (c *Client) SaveCachedCookies() error {
 
 // ClearCookieCache deletes the cached cookie file for the current PSID
 func (c *Client) ClearCookieCache() error {
+	if c.ephemeral {
+		return nil
+	}
 	snapshot := c.GetCookies()
 	if snapshot.Secure1PSID == "" {
 		return nil
