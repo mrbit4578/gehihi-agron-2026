@@ -16,17 +16,25 @@ Build thành công, model xuất hiện hoặc relay có heartbeat đều chưa 
 | Provider | Token và danh sách model vẫn lấy từ Google. Không thêm model giả hoặc đổi tên model khác thành Argon. Unit test bảo toàn slot, model và HTTP error đạt. |
 | Antigravity | CLI thật trả “Kết nối Argon đã được thiết lập thành công.” khi gọi browser backend local. |
 | HTTPS và gateway | Chat MCP qua tunnel HTTPS thật đạt. CLI qua gateway Gemini buffered SSE → tunnel → browser backend trả “Đã nhận được request qua gateway thành công.” |
-| Vercel | Chưa chuyển Production sang browser backend. Đã chuẩn bị ba biến upstream; đang chờ chủ tài khoản lưu và redeploy để kiểm tra domain Vercel thật. |
+| Vercel | Chủ tài khoản đã cập nhật ba biến upstream và redeploy. MCP qua `https://gehihi-agron-2026-one.vercel.app` xác thực thành công, nhận đúng `gemini-4-argon` và câu trả lời thật. |
+| Antigravity qua Vercel | CLI thật exit 0, trả “Đã nhận yêu cầu của bạn qua web Vercel thành công.” Luồng Gemini buffered SSE đã đi qua domain Production, tunnel HTTPS và tab Chrome. |
 
 Go test toàn bộ và go vet đã đạt trong phiên audit. Sau khi thêm kiểm tra slot và cấu hình, kiểm thử provider/config và relay tiếp tục đạt.
 Các kiểm thử tự động không sử dụng tài khoản Google thật.
 
-## Bước thực hiện tiếp theo
+## Kết luận và vận hành tiếp
 
-1. Chủ tài khoản cập nhật Production upstream theo endpoint HTTPS đang chạy và redeploy.
-2. Kiểm tra API trên domain Vercel và Antigravity qua domain đó.
-3. Kiểm tra gọi công cụ và ghép lại sau khi khởi động lại Chrome.
-4. Nếu lỗi, phân tích phản hồi thực của tầng lỗi; không lặp lại yêu cầu đổi Cookie khi chưa có bằng chứng.
+Kết nối giao thức đã được kiểm chứng bằng inference thật từ MCP và Antigravity CLI qua Production.
+Đây là kết quả của phiên đang chạy, chưa phải bảo đảm vận hành 24/7 hoặc tự khôi phục sau restart.
+Lần thử CLI qua gateway local yêu cầu đọc `package.json` đã trả đúng tên `gehihi-agron-2026`;
+chưa kiểm thử riêng tool round-trip qua Production hoặc khởi động lại Chrome.
+
+Trong Antigravity IDE, mở menu Terminal → New Terminal → chọn profile **Gehihi Argon**.
+Profile gọi launcher dùng domain Production theo mặc định. MCP server `gehihi` cũng dùng domain đó.
+Nếu terminal cũ có `GEHIHI_BASE_URL` đặt local, xóa biến override hoặc mở terminal mới trước khi chạy launcher.
+Danh sách model chính của IDE do Antigravity quản lý; profile CLI và công cụ MCP là hai lối sử dụng cầu nối.
+
+Nếu lỗi, phân tích phản hồi thực của tầng lỗi; không lặp lại yêu cầu đổi Cookie khi chưa có bằng chứng.
 
 ## Giới hạn vận hành
 
