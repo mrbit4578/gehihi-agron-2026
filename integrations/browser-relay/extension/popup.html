@@ -1,0 +1,8 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Gehihi Gemini Bridge</title><link rel="stylesheet" href="popup.css"></head>
+<body><h1>Gehihi · Gemini Bridge</h1>
+<p>Mở đúng tab Gemini đang chat được bằng Argon, rồi kết nối tab đó với backend trên máy.</p>
+<label for="key">Khóa workspace (API_KEY)</label><input id="key" type="password" autocomplete="off" spellcheck="false" placeholder="Dán khóa workspace, không dán Cookie">
+<p class="note">Khóa chỉ giữ trong phiên Chrome. Tiện ích không có quyền đọc Cookie; không đưa khóa này vào trang Google.</p>
+<button id="connect">Kết nối tab Gemini hiện tại</button><button id="disconnect" class="secondary">Ngắt kết nối</button>
+<p id="status" role="status">Đang kiểm tra…</p><script src="popup.js"></script></body></html>

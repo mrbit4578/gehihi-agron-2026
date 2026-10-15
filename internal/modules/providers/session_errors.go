@@ -56,7 +56,7 @@ func SafeInitializationDiagnostic(err error) (code string, upstreamStatus int) {
 	var detail *SessionInitializationError
 	if errors.As(err, &detail) {
 		switch detail.Code {
-		case "session_token_missing", "session_login_required", "session_network_error", "google_rate_limited", "google_access_denied", "google_verification_required", "model_discovery_failed", "account_models_unavailable":
+		case "session_token_missing", "session_login_required", "session_network_error", "google_rate_limited", "google_access_denied", "google_verification_required", "model_discovery_failed", "account_models_unavailable", "browser_bridge_offline", "browser_bridge_invalid_reply", "browser_bridge_invalid_target":
 			return detail.Code, detail.HTTPStatus
 		}
 	}

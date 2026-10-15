@@ -74,7 +74,7 @@ func New(cfg *configs.Config, log *zap.Logger) (*Runtime, error) {
 			if !server.IsAPIPath(c.Path()) {
 				return c.Next()
 			}
-			if cfg.Gemini.Cookies == "" {
+			if cfg.Gemini.Cookies == "" && cfg.Gemini.BrowserRelayURL == "" {
 				return c.Status(503).JSON(fiber.Map{"error": fiber.Map{"message": "Server chưa cấu hình GEMINI_COOKIES.", "type": "configuration_error"}})
 			}
 			var requestModel struct {

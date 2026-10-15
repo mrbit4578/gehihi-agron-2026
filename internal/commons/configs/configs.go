@@ -2,6 +2,7 @@ package configs
 
 import (
 	"fmt"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -33,6 +34,7 @@ type GeminiConfig struct {
 	MaxRetries      int
 	Cookies         string
 	Temporary       bool
+	BrowserRelayURL string
 }
 
 type ClaudeConfig struct {
@@ -48,6 +50,7 @@ type OpenAIConfig struct {
 }
 
 type ServerConfig struct {
+	BindHost              string
 	Port                  string
 	APIKey                string
 	AllowedOrigins        []string
@@ -87,6 +90,7 @@ func load(allowUnconfigured bool) (*Config, error) {
 
 	// Server
 	cfg.Server.Port = getEnv("PORT", defaultServerPort)
+	cfg.Server.BindHost = strings.TrimSpace(os.Getenv("GEHIHI_BIND_HOST"))
 	cfg.Server.APIKey = strings.TrimSpace(os.Getenv("API_KEY"))
 	cfg.Server.UpstreamBaseURL = strings.TrimSpace(os.Getenv("UPSTREAM_BASE_URL"))
 	cfg.Server.UpstreamGeminiBaseURL = strings.TrimSpace(os.Getenv("UPSTREAM_GEMINI_BASE_URL"))
@@ -114,6 +118,7 @@ func load(allowUnconfigured bool) (*Config, error) {
 
 	// Gemini
 	cfg.Gemini.Cookies = os.Getenv("GEMINI_COOKIES")
+	cfg.Gemini.BrowserRelayURL = strings.TrimRight(strings.TrimSpace(os.Getenv("GEMINI_BROWSER_RELAY_URL")), "/")
 	cfg.Gemini.AuthUser = strings.TrimSpace(os.Getenv("GEMINI_AUTH_USER"))
 	cfg.Gemini.Secure1PSID = cookieValue(cfg.Gemini.Cookies, "__Secure-1PSID")
 	cfg.Gemini.Secure1PSIDTS = cookieValue(cfg.Gemini.Cookies, "__Secure-1PSIDTS")
@@ -155,10 +160,25 @@ func cookieValue(header, wanted string) string {
 // Validate checks if the configuration has required values
 func (c *Config) Validate() error {
 	var missingVars []string
+	if c.Server.BindHost != "" && c.Server.BindHost != "127.0.0.1" && c.Server.BindHost != "::1" && c.Server.BindHost != "0.0.0.0" {
+		return fmt.Errorf("invalid GEHIHI_BIND_HOST")
+	}
+	if c.Gemini.BrowserRelayURL != "" {
+		u, err := url.Parse(c.Gemini.BrowserRelayURL)
+		if err != nil || u.Scheme != "http" || u.Hostname() != "127.0.0.1" || u.User != nil || (u.Path != "" && u.Path != "/") || u.RawQuery != "" || u.Fragment != "" {
+			return fmt.Errorf("GEMINI_BROWSER_RELAY_URL must be an HTTP loopback base URL without credentials, path or query")
+		}
+		if c.Server.Serverless {
+			return fmt.Errorf("browser relay runs on the local backend; configure UPSTREAM_BASE_URL on Vercel")
+		}
+		if c.Server.APIKey == "" {
+			return fmt.Errorf("API_KEY is required for the browser relay")
+		}
+	}
 
-	if strings.TrimSpace(c.Gemini.Cookies) == "" && !c.AllowUnconfigured {
+	if c.Gemini.BrowserRelayURL == "" && strings.TrimSpace(c.Gemini.Cookies) == "" && !c.AllowUnconfigured {
 		missingVars = append(missingVars, "GEMINI_COOKIES")
-	} else if c.Gemini.Cookies != "" && (c.Gemini.Secure1PSID == "" || c.Gemini.Secure1PSIDTS == "") {
+	} else if c.Gemini.BrowserRelayURL == "" && c.Gemini.Cookies != "" && (c.Gemini.Secure1PSID == "" || c.Gemini.Secure1PSIDTS == "") {
 		return fmt.Errorf("GEMINI_COOKIES must contain __Secure-1PSID and __Secure-1PSIDTS")
 	}
 

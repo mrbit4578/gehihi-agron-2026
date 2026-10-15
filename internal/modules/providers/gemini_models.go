@@ -53,7 +53,8 @@ func fetchGeminiModels(ctx context.Context, client *http.Client, token, cookieHe
 	if client == nil {
 		return nil, errors.New("Gemini model discovery requires an HTTP client")
 	}
-	if token == "" || cookieHeader == "" {
+	_, browserSession := client.Transport.(*browserRelayTransport)
+	if token == "" || (cookieHeader == "" && !browserSession) {
 		return nil, errors.New("Gemini model discovery requires an authenticated session")
 	}
 	if language == "" {

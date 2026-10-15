@@ -76,6 +76,8 @@ Mở `http://127.0.0.1:4981`. `API_KEY` trong `.env.local` là khóa workspace, 
 
 ## Đấu nối Antigravity trên máy
 
+Nếu phiên Cookie xuất khỏi Chrome hoạt động chập chờn, có thể dùng [cầu nối tab Gemini trong Chrome](docs/BROWSER_RELAY.md). Chế độ này dùng tab do bạn ghép rõ ràng, không xuất Cookie. Cần kiểm thử chat thật trên máy trước khi cấu hình backend HTTPS cho Vercel; chỉ ghép tab chưa chứng minh Argon hoạt động.
+
 Web có hướng dẫn tại `/#guide-antigravity` và phần **Kết nối API → Đấu nối Antigravity trên máy**. Cầu nối MCP local cho Antigravity gọi API web qua ba công cụ `gehihi_status`, `gehihi_models`, `gehihi_chat`. Model chính của agent Antigravity vẫn do ứng dụng quản lý; lời gọi `gehihi_chat` dùng model thật được provider của web cấp quyền.
 
 Trong thư mục dự án, cập nhật riêng `API_KEY` trong `.env.local` bằng khóa Production của web, rồi chạy:

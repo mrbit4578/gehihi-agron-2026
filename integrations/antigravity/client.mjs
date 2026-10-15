@@ -87,6 +87,12 @@ export function createClient(options = {}) {
         failure = await response.json();
       } catch {}
       const providerReasons = {
+        browser_bridge_offline:
+          "Chưa ghép được tab Gemini với browser relay trên máy. Mở đúng tab Gemini, kết nối bằng tiện ích Gehihi rồi thử lại.",
+        browser_bridge_invalid_reply:
+          "Browser relay chưa trả phản hồi hợp lệ. Kiểm tra tiện ích và tab Gemini đang được ghép.",
+        browser_bridge_invalid_target:
+          "Browser relay từ chối endpoint ngoài phạm vi chat Gemini.",
         account_models_unavailable:
           "Google đã trả token nhưng chưa cho phép phiên này chọn model. Khóa workspace đúng; cần đối chiếu phiên và quyền tài khoản. Chưa thể chạy Argon.",
         session_login_required:

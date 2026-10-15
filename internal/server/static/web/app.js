@@ -256,6 +256,12 @@ async function request(path, options = {}) {
   }
   if (!response.ok) {
     const providerReasons = {
+      browser_bridge_offline:
+        "Chưa có tab Gemini được ghép với relay trên máy. Mở tiện ích Gehihi trong tab Gemini và kết nối lại.",
+      browser_bridge_invalid_reply:
+        "Browser relay trả phản hồi không hợp lệ. Kiểm tra tiện ích và tab Gemini được ghép.",
+      browser_bridge_invalid_target:
+        "Browser relay từ chối endpoint ngoài phạm vi chat Gemini.",
       account_models_unavailable:
         "Google đã trả token nhưng chưa cho phép phiên này chọn model. Khóa workspace đúng. Xem hướng dẫn lỗi tài khoản; chưa thể kết luận Cookie hết hạn.",
       session_login_required:

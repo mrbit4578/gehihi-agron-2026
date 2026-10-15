@@ -49,3 +49,30 @@ func TestNewDerivesAuthenticationFromGeminiCookies(t *testing.T) {
 		t.Fatalf("incorrect Gemini config derived from full Cookie header: %#v", cfg.Gemini)
 	}
 }
+
+func TestBrowserRelayConfigurationRequiresLocalAuthenticatedBackend(t *testing.T) {
+	valid := func() Config {
+		return Config{Server: ServerConfig{APIKey: "test-browser-workspace-key", BindHost: "127.0.0.1"}, Gemini: GeminiConfig{BrowserRelayURL: "http://127.0.0.1:54985"}}
+	}
+	cfg := valid()
+	if err := cfg.Validate(); err != nil {
+		t.Fatalf("browser mode should not require exported cookies: %v", err)
+	}
+	for _, target := range []string{"https://example.com", "http://localhost:54985", "http://user:pass@127.0.0.1:54985", "http://127.0.0.1:54985/path", "http://127.0.0.1:54985?key=x"} {
+		cfg := valid()
+		cfg.Gemini.BrowserRelayURL = target
+		if cfg.Validate() == nil {
+			t.Fatalf("accepted non-local or non-base relay URL: %s", target)
+		}
+	}
+	cfg = valid()
+	cfg.Server.Serverless = true
+	if cfg.Validate() == nil {
+		t.Fatal("accepted loopback relay on Vercel")
+	}
+	cfg = valid()
+	cfg.Server.APIKey = ""
+	if cfg.Validate() == nil {
+		t.Fatal("accepted unauthenticated relay")
+	}
+}

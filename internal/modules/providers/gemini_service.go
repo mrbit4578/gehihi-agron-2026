@@ -53,6 +53,7 @@ type Client struct {
 	cachedModels     []geminiModel
 	defaultTemporary bool
 	cacheDir         string
+	browserRelay     *browserRelayTransport
 	refreshOnce      sync.Once
 	closeOnce        sync.Once
 
@@ -103,7 +104,7 @@ func NewClient(cfg *configs.Config, log *zap.Logger) *Client {
 	if cfg.Server.Serverless {
 		cacheDir = filepath.Join(os.TempDir(), "gehihi-cookies")
 	}
-	return &Client{
+	result := &Client{
 		httpClient:             client,
 		cookies:                cookies,
 		configuredCookieHeader: strings.TrimSpace(cfg.Gemini.Cookies),
@@ -116,9 +117,17 @@ func NewClient(cfg *configs.Config, log *zap.Logger) *Client {
 		log:                    log,
 		defaultTemporary:       cfg.Gemini.Temporary,
 	}
+	if cfg.Gemini.BrowserRelayURL != "" {
+		result.browserRelay = &browserRelayTransport{baseURL: cfg.Gemini.BrowserRelayURL, key: cfg.Server.APIKey}
+		result.autoRefresh = false
+	}
+	return result
 }
 
 func (c *Client) Init(ctx context.Context) error {
+	if c.browserRelay != nil {
+		return c.refreshBrowserSession(ctx)
+	}
 	// Clean cookies
 	c.cookies.mu.Lock()
 	c.cookies.Secure1PSID = cleanCookie(c.cookies.Secure1PSID)
@@ -623,6 +632,9 @@ func (c *Client) generateContent(ctx context.Context, prompt string, metadata []
 
 	// Use a plain http.Client to avoid cookie accumulation issues with the req library
 	plainClient := &http.Client{Timeout: 5 * time.Minute}
+	if c.browserRelay != nil {
+		plainClient.Transport = c.browserRelay
+	}
 
 	totalStart := time.Now()
 

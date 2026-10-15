@@ -32,7 +32,10 @@ func RegisterWebRoutes(app *fiber.App, client *providers.Client, cfg *configs.Co
 	app.Get("/status", func(c fiber.Ctx) error {
 		c.Set("Cache-Control", "no-store")
 		provider := "gemini-web"
-		configured := cfg.Gemini.Cookies != ""
+		configured := cfg.Gemini.Cookies != "" || cfg.Gemini.BrowserRelayURL != ""
+		if cfg.Gemini.BrowserRelayURL != "" {
+			provider = "gemini-browser"
+		}
 		if cfg.Server.UpstreamBaseURL != "" {
 			provider = "openai-compatible"
 			configured = true

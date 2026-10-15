@@ -7,6 +7,7 @@ import (
 
 	"context"
 	"log"
+	"net"
 	"os"
 	"os/signal"
 	"syscall"
@@ -35,7 +36,7 @@ func main() {
 		defer done()
 		_ = runtime.App.ShutdownWithContext(ctx)
 	}()
-	if err := runtime.App.Listen(":" + cfg.Server.Port); err != nil {
+	if err := runtime.App.Listen(net.JoinHostPort(cfg.Server.BindHost, cfg.Server.Port)); err != nil {
 		log.Print(err)
 	}
 }
