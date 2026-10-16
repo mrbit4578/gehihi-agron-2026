@@ -29,7 +29,7 @@ export function createRelay({ apiKey, jobTimeoutMs = 180000, pollTimeoutMs = 200
     return job;
   };
   // Chrome can throttle background-tab timers; its extension alarm wakes every 30s.
-  const connected = () => Boolean(client && now() - client.seen < 90000);
+  const connected = () => Boolean(client && now() - client.seen < 300000);
   const server = http.createServer(async (req, res) => {
     try {
       const host = `127.0.0.1:${server.address().port}`;

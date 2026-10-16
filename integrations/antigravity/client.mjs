@@ -3,7 +3,7 @@ import { parseEnv } from "node:util";
 import { fileURLToPath } from "node:url";
 
 export const defaultBaseURL =
-  "https://gehihi-agron-2026-one.vercel.app/openai/v1";
+  process.env.GEHIHI_BASE_URL || "http://127.0.0.1:4981/openai/v1";
 export const defaultEnvFile = fileURLToPath(
   new URL("../../.env.local", import.meta.url),
 );
@@ -170,13 +170,27 @@ export function createClient(options = {}) {
       { model, prompt, temperature, top_p, top_k, preset, system_prompt },
       signal,
     ) {
-      const available = await models(signal);
-      const personaList = await personas(signal);
-      const isPersona = personaList.some((p) => p.id === model);
-      if (!available.some((m) => m.id === model) && !isPersona)
-        throw new Error(
-          "Model chưa có trong danh sách provider hoặc danh sách Model Persona. Gọi gehihi_models hoặc gehihi_model_personas rồi chọn đúng ID khả dụng.",
-        );
+      // Fast path: known personas and canonical models bypass sequential discovery RPC
+      const knownDirectModels = new Set([
+        "gemini-4-argon",
+        "gemini-3.1-pro",
+        "gemini-3.8-flash",
+        "gemini-3.5-flash-lite",
+        "gehihi-coder",
+        "gehihi-analyst",
+        "gehihi-assistant",
+        "gehihi-creative",
+        "gehihi-researcher",
+      ]);
+      if (!knownDirectModels.has(model)) {
+        const available = await models(signal);
+        const personaList = await personas(signal);
+        const isPersona = personaList.some((p) => p.id === model);
+        if (!available.some((m) => m.id === model) && !isPersona)
+          throw new Error(
+            "Model chưa có trong danh sách provider hoặc danh sách Model Persona. Gọi gehihi_models hoặc gehihi_model_personas rồi chọn đúng ID khả dụng.",
+          );
+      }
       if (/-music$/.test(model))
         throw new Error(
           "Model âm nhạc cần backend liên tục. Chọn model chat văn bản.",
