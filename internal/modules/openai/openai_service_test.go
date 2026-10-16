@@ -166,3 +166,78 @@ func TestVideosAPIRejectsInvalidRequests(t *testing.T) {
 		}
 	}
 }
+
+func TestModelPersonaResolution(t *testing.T) {
+	service := NewOpenAIService(nil, zap.NewNop())
+	persona, err := service.ResolveModel("gehihi-coder")
+	if err != nil {
+		t.Fatalf("unexpected error resolving gehihi-coder: %v", err)
+	}
+	if persona.ID != "gehihi-coder" {
+		t.Errorf("got persona.ID = %q, want gehihi-coder", persona.ID)
+	}
+
+	profiles := service.ListModelProfiles()
+	if len(profiles) < 5 {
+		t.Errorf("expected at least 5 built-in model profiles, got %d", len(profiles))
+	}
+}
+
+func TestDecodingValidation(t *testing.T) {
+	service := NewOpenAIService(nil, zap.NewNop())
+
+	invalidTemp := float32(2.5)
+	req := dto.ChatCompletionRequest{
+		Model: "gehihi-coder",
+		Messages: []dto.ChatCompletionMessage{
+			{Role: "user", Content: "Hello"},
+		},
+		Temperature: &invalidTemp,
+	}
+	if err := service.ValidateChatCompletion(req); err == nil {
+		t.Error("expected error for temperature > 2, got nil")
+	}
+
+	validTemp := float32(0.1)
+	invalidTopP := float32(1.5)
+	req.Temperature = &validTemp
+	req.TopP = &invalidTopP
+	if err := service.ValidateChatCompletion(req); err == nil {
+		t.Error("expected error for top_p > 1, got nil")
+	}
+
+	validTopP := float32(0.1)
+	req.TopP = &validTopP
+	if err := service.ValidateChatCompletion(req); err != nil {
+		t.Errorf("unexpected error for valid decoding params: %v", err)
+	}
+}
+
+func TestModelProfilesAndEstimateEndpoints(t *testing.T) {
+	app := fiber.New()
+	service := NewOpenAIService(nil, zap.NewNop())
+	controller := NewOpenAIController(service, zap.NewNop())
+	controller.Register(app.Group("/openai/v1"))
+
+	// Test GET /openai/v1/model-profiles
+	req := httptest.NewRequest(http.MethodGet, "/openai/v1/model-profiles", nil)
+	resp, err := app.Test(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("model-profiles status: %d", resp.StatusCode)
+	}
+
+	// Test POST /openai/v1/tokens/estimate
+	estimateReq := httptest.NewRequest(http.MethodPost, "/openai/v1/tokens/estimate", strings.NewReader(`{"text":"Xin chào mô hình ngôn ngữ lớn LLM"}`))
+	estimateReq.Header.Set("Content-Type", "application/json")
+	resp, err = app.Test(estimateReq)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("tokens/estimate status: %d", resp.StatusCode)
+	}
+}
+

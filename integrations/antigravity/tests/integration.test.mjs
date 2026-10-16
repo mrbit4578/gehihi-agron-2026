@@ -72,6 +72,20 @@ async function fixture(t) {
           ],
         }),
       );
+    else if (req.url === "/openai/v1/model-profiles")
+      res.end(
+        JSON.stringify({
+          data: [{ id: "gehihi-coder", name: "Gehihi Coder" }],
+        }),
+      );
+    else if (req.url === "/openai/v1/tokens/estimate")
+      res.end(
+        JSON.stringify({
+          estimated_tokens: 15,
+          character_count: 50,
+          context_recommendation: "Trong ngưỡng tối ưu",
+        }),
+      );
     else if (req.url === "/openai/v1/chat/completions")
       res.end(
         JSON.stringify({
@@ -118,6 +132,8 @@ test("MCP stdio discovers tools, guards model IDs and preserves actual response 
   const tools = await client.listTools();
   assert.deepEqual(tools.tools.map((tool) => tool.name).sort(), [
     "gehihi_chat",
+    "gehihi_estimate_tokens",
+    "gehihi_model_personas",
     "gehihi_models",
     "gehihi_status",
   ]);
@@ -132,20 +148,41 @@ test("MCP stdio discovers tools, guards model IDs and preserves actual response 
     arguments: {},
   });
   assert.equal(models.structuredContent.models[0].id, "gemini-4-argon");
+
+  const personas = await client.callTool({
+    name: "gehihi_model_personas",
+    arguments: {},
+  });
+  assert.equal(personas.structuredContent.personas[0].id, "gehihi-coder");
+
+  const est = await client.callTool({
+    name: "gehihi_estimate_tokens",
+    arguments: { text: "Xin chào" },
+  });
+  assert.equal(est.structuredContent.estimated_tokens, 15);
+
   const fake = await client.callTool({
     name: "gehihi_chat",
     arguments: { model: "fake-model", prompt: "hello" },
   });
   assert.equal(fake.isError, true);
-  assert.equal(f.calls.filter((call) => call.body).length, 0);
   const chat = await client.callTool({
     name: "gehihi_chat",
-    arguments: { model: "gemini-4-argon", prompt: "hello" },
+    arguments: {
+      model: "gemini-4-argon",
+      prompt: "hello",
+      temperature: 0.1,
+      top_p: 0.1,
+      preset: "deterministic",
+    },
   });
   assert.equal(chat.isError, undefined);
   assert.equal(chat.structuredContent.model, "actual-response-model");
   assert.equal(chat.structuredContent.requested_model, "gemini-4-argon");
   assert.equal(f.calls.at(-1).body.model, "gemini-4-argon");
+  assert.equal(f.calls.at(-1).body.temperature, 0.1);
+  assert.equal(f.calls.at(-1).body.top_p, 0.1);
+  assert.equal(f.calls.at(-1).body.preset, "deterministic");
   for (const call of f.calls) assert.equal(call.headers.cookie, undefined);
   assert.ok(!JSON.stringify(chat).includes("local-test-secret"));
 });

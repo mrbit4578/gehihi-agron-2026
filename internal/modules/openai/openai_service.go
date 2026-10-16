@@ -38,7 +38,44 @@ func (s *OpenAIService) ListModels() []providers.ModelInfo {
 }
 
 func (s *OpenAIService) ResolveModel(model string) (providers.ModelInfo, error) {
+	if persona := models.FindPersonaByID(model); persona != nil {
+		if s.client != nil {
+			modelsList := s.client.ListModels()
+			for _, rec := range persona.RecommendedModels {
+				for _, m := range modelsList {
+					if strings.EqualFold(m.ID, rec) {
+						return providers.ModelInfo{
+							ID:          persona.ID,
+							DisplayName: persona.Name,
+							Created:     m.Created,
+							OwnedBy:     "gehihi-ai-builder",
+						}, nil
+					}
+				}
+			}
+			if len(modelsList) > 0 {
+				return providers.ModelInfo{
+					ID:          persona.ID,
+					DisplayName: persona.Name,
+					Created:     modelsList[0].Created,
+					OwnedBy:     "gehihi-ai-builder",
+				}, nil
+			}
+		}
+		return providers.ModelInfo{
+			ID:          persona.ID,
+			DisplayName: persona.Name,
+			OwnedBy:     "gehihi-ai-builder",
+		}, nil
+	}
+	if s.client == nil {
+		return providers.ModelInfo{}, fmt.Errorf("client not initialized")
+	}
 	return s.client.ResolveModel(model)
+}
+
+func (s *OpenAIService) ListModelProfiles() []models.ModelPersona {
+	return models.GetBuiltinPersonas()
 }
 
 // ValidateChatCompletion performs checks that must finish before an HTTP
@@ -47,10 +84,13 @@ func (s *OpenAIService) ValidateChatCompletion(req dto.ChatCompletionRequest) er
 	if err := utils.ValidateMessages(req.ToModelMessages()); err != nil {
 		return err
 	}
-	if err := utils.ValidateGenerationRequest(req.Model, req.MaxTokens, req.Temperature); err != nil {
+	if req.MaxTokens < 0 {
+		return fmt.Errorf("max_tokens must be non-negative")
+	}
+	if err := utils.ValidateDecodingParameters(req.Temperature, req.TopP, req.TopK); err != nil {
 		return err
 	}
-	_, err := s.client.ResolveModel(req.Model)
+	_, err := s.ResolveModel(req.Model)
 	return err
 }
 
@@ -61,8 +101,58 @@ func (s *OpenAIService) CreateChatCompletion(ctx context.Context, req dto.ChatCo
 		return nil, err
 	}
 
+	actualModel := req.Model
+	systemPrompt := req.SystemPrompt
+
+	// Resolve ModelPersona if a built AI Model profile was requested
+	if persona := models.FindPersonaByID(req.Model); persona != nil {
+		if s.client != nil {
+			modelsList := s.client.ListModels()
+			found := false
+			for _, rec := range persona.RecommendedModels {
+				for _, m := range modelsList {
+					if strings.EqualFold(m.ID, rec) {
+						actualModel = m.ID
+						found = true
+						break
+					}
+				}
+				if found {
+					break
+				}
+			}
+			if !found && len(modelsList) > 0 {
+				actualModel = modelsList[0].ID
+			}
+		}
+		if req.Temperature == nil {
+			req.Temperature = &persona.Temperature
+		}
+		if req.TopP == nil {
+			req.TopP = &persona.TopP
+		}
+		if systemPrompt == "" {
+			systemPrompt = persona.SystemPrompt
+		}
+		if req.Preset == "" {
+			req.Preset = persona.DecodingPreset
+		}
+	}
+
+	// Apply Decoding Preset if specified
+	if req.Preset != "" {
+		if temp, topP, ok := models.PresetDecoding(req.Preset); ok {
+			if req.Temperature == nil {
+				req.Temperature = &temp
+			}
+			if req.TopP == nil {
+				req.TopP = &topP
+			}
+		}
+	}
+
 	// Logic: Build Prompt
-	prompt := utils.BuildPromptFromMessages(modelMessages, "")
+	prompt := utils.BuildPromptFromMessages(modelMessages, systemPrompt)
 	if prompt == "" {
 		return nil, fmt.Errorf("no valid content in messages")
 	}
@@ -72,9 +162,28 @@ func (s *OpenAIService) CreateChatCompletion(ctx context.Context, req dto.ChatCo
 	}
 
 	opts := []providers.GenerateOption{}
-	if req.Model != "" {
-		opts = append(opts, providers.WithModel(req.Model))
+	if actualModel != "" {
+		opts = append(opts, providers.WithModel(actualModel))
 	}
+	if req.Temperature != nil {
+		opts = append(opts, providers.WithTemperature(float64(*req.Temperature)))
+	}
+	if req.TopP != nil {
+		opts = append(opts, providers.WithTopP(float64(*req.TopP)))
+	}
+	if req.TopK != nil {
+		opts = append(opts, providers.WithTopK(*req.TopK))
+	}
+	if req.MaxTokens > 0 {
+		opts = append(opts, providers.WithMaxTokens(req.MaxTokens))
+	}
+	if systemPrompt != "" {
+		opts = append(opts, providers.WithSystemPrompt(systemPrompt))
+	}
+	if req.Preset != "" {
+		opts = append(opts, providers.WithDecodingPreset(req.Preset))
+	}
+
 	inputFiles, err := providers.InputFilesFromAttachments(modelMessages)
 	if err != nil {
 		return nil, err
@@ -126,6 +235,13 @@ func (s *OpenAIService) CreateChatCompletion(ctx context.Context, req dto.ChatCo
 	message.ReasoningContent = response.ReasoningText
 	message.Canvases = providers.CanvasFiles(response.Canvases)
 
+	// Grounded Token Usage Calculation via Byte-Pair Encoding (BPE)
+	promptTokens := utils.EstimateMessagesTokens(modelMessages, systemPrompt)
+	completionTokens := utils.EstimateTokens(response.Text)
+	if response.ReasoningText != "" {
+		completionTokens += utils.EstimateTokens(response.ReasoningText)
+	}
+
 	// Logic: Construct Response
 	return &dto.ChatCompletionResponse{
 		ID:             fmt.Sprintf("chatcmpl-%d", time.Now().Unix()),
@@ -141,9 +257,9 @@ func (s *OpenAIService) CreateChatCompletion(ctx context.Context, req dto.ChatCo
 			},
 		},
 		Usage: models.Usage{
-			PromptTokens:     0,
-			CompletionTokens: 0,
-			TotalTokens:      0,
+			PromptTokens:     promptTokens,
+			CompletionTokens: completionTokens,
+			TotalTokens:      promptTokens + completionTokens,
 		},
 	}, nil
 }
@@ -395,6 +511,7 @@ func (s *OpenAIService) CreateChatCompletionStream(ctx context.Context, req dto.
 			Created: created,
 			Model:   response.Model,
 			Choices: []dto.ChunkChoice{{Index: 0, FinishReason: "tool_calls"}},
+			Usage:   &response.Usage,
 		})
 		return nil
 	}
@@ -455,6 +572,7 @@ func (s *OpenAIService) CreateChatCompletionStream(ctx context.Context, req dto.
 		Created: created,
 		Model:   response.Model,
 		Choices: []dto.ChunkChoice{{Index: 0, Delta: dto.ChatCompletionChunkDelta{Canvases: choice.Message.Canvases}, FinishReason: choice.FinishReason}},
+		Usage:   &response.Usage,
 	})
 
 	return nil

@@ -46,6 +46,20 @@ func (s *GeminiService) GenerateContent(ctx context.Context, modelID string, req
 
 	// Logic: Call Provider
 	opts := []providers.GenerateOption{providers.WithModel(modelID)}
+	if req.GenerationConfig != nil {
+		if req.GenerationConfig.Temperature > 0 {
+			opts = append(opts, providers.WithTemperature(float64(req.GenerationConfig.Temperature)))
+		}
+		if req.GenerationConfig.TopP > 0 {
+			opts = append(opts, providers.WithTopP(float64(req.GenerationConfig.TopP)))
+		}
+		if req.GenerationConfig.TopK > 0 {
+			opts = append(opts, providers.WithTopK(int(req.GenerationConfig.TopK)))
+		}
+		if req.GenerationConfig.MaxOutputTokens > 0 {
+			opts = append(opts, providers.WithMaxTokens(int(req.GenerationConfig.MaxOutputTokens)))
+		}
+	}
 	if len(inputFiles) > 0 {
 		opts = append(opts, providers.WithInputFiles(inputFiles))
 	}
@@ -99,6 +113,12 @@ func (s *GeminiService) GenerateContent(ctx context.Context, modelID string, req
 		}
 	}
 
+	promptTokens := int32(utils.EstimateTokens(prompt))
+	completionTokens := int32(utils.EstimateTokens(response.Text))
+	if response.ReasoningText != "" {
+		completionTokens += int32(utils.EstimateTokens(response.ReasoningText))
+	}
+
 	return &dto.GeminiGenerateResponse{
 		Candidates: []dto.Candidate{
 			{
@@ -111,7 +131,9 @@ func (s *GeminiService) GenerateContent(ctx context.Context, modelID string, req
 			},
 		},
 		UsageMetadata: &dto.UsageMetadata{
-			TotalTokenCount: 0,
+			PromptTokenCount:     promptTokens,
+			CandidatesTokenCount: completionTokens,
+			TotalTokenCount:      promptTokens + completionTokens,
 		},
 	}, nil
 }

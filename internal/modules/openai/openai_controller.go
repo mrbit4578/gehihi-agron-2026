@@ -354,10 +354,53 @@ func (h *OpenAIController) HandleSpeech(c fiber.Ctx) error {
 	return c.Send(data)
 }
 
+// HandleModelProfiles returns available specialized Model AI personas
+func (h *OpenAIController) HandleModelProfiles(c fiber.Ctx) error {
+	return c.JSON(fiber.Map{
+		"object": "list",
+		"data":   models.GetBuiltinPersonas(),
+	})
+}
+
+// HandleEstimateTokens calculates BPE token estimation for text or messages
+func (h *OpenAIController) HandleEstimateTokens(c fiber.Ctx) error {
+	var req struct {
+		Text         string           `json:"text"`
+		Messages     []models.Message `json:"messages"`
+		SystemPrompt string           `json:"system_prompt"`
+	}
+	if err := c.Bind().Body(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(utils.ErrorToResponse(err, "invalid_request_error"))
+	}
+
+	tokens := 0
+	charCount := len([]rune(req.Text))
+	if len(req.Messages) > 0 {
+		tokens = utils.EstimateMessagesTokens(req.Messages, req.SystemPrompt)
+	} else {
+		tokens = utils.EstimateTokens(req.Text)
+	}
+
+	recommendation := "Trong ngưỡng tối ưu (< 4096 tokens, attention O(T^2) nhẹ)"
+	if tokens > 32000 {
+		recommendation = "Cảnh báo: Ngữ cảnh rất dài (> 32k tokens), có nguy cơ loãng trọng số chú ý (Attention dilution)"
+	} else if tokens > 8192 {
+		recommendation = "Cảnh báo vừa: Ngữ cảnh trên 8k tokens, nên cân nhắc tóm tắt hoặc nén bộ nhớ (Context Compaction)"
+	}
+
+	return c.JSON(fiber.Map{
+		"estimated_tokens":       tokens,
+		"character_count":       charCount,
+		"context_recommendation": recommendation,
+	})
+}
+
 // Register registers the OpenAI routes onto the provided group
 func (c *OpenAIController) Register(group fiber.Router) {
 	group.Get("/models", c.HandleModels)
 	group.Get("/models/:model", c.HandleModel)
+	group.Get("/model-profiles", c.HandleModelProfiles)
+	group.Post("/tokens/estimate", c.HandleEstimateTokens)
 	group.Post("/chat/completions", c.HandleChatCompletions)
 	group.Post("/images/generations", c.HandleImageGenerations)
 	group.Post("/audio/speech", c.HandleSpeech)

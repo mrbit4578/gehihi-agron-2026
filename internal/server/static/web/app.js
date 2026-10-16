@@ -13,7 +13,170 @@ const state = {
   controller: null,
   status: null,
   statusError: false,
+  preset: "balanced",
+  temperature: 0.7,
+  topP: 0.9,
+  systemPrompt: "",
 };
+const presets = {
+  deterministic: { temperature: 0.1, topP: 0.1, label: "Chính xác / Code (T=0.1, Top-P=0.1)" },
+  balanced: { temperature: 0.7, topP: 0.9, label: "Cân bằng (T=0.7, Top-P=0.9)" },
+  creative: { temperature: 1.1, topP: 0.95, label: "Sáng tạo (T=1.1, Top-P=0.95)" }
+};
+const builtinPersonas = {
+  "gehihi-coder": {
+    name: "Gehihi Coder & Architect",
+    preset: "deterministic",
+    temperature: 0.1,
+    topP: 0.1,
+    systemPrompt: "Bạn là Kỹ sư Trưởng kiêm Kiến trúc sư Hệ thống phần mềm cao cấp. Bạn phân tích code mạch lạc, logic chặt chẽ, tuân thủ nguyên tắc Clean Code và bảo mật. Khi viết mã, bạn cung cấp code hoàn chỉnh, có xử lý lỗi, giải thích ngắn gọn và không bịa đặt API."
+  },
+  "gehihi-analyst": {
+    name: "Gehihi Data & Logic Analyst",
+    preset: "deterministic",
+    temperature: 0.0,
+    topP: 0.1,
+    systemPrompt: "Bạn là Chuyên gia Phân tích Dữ liệu và Hệ thống. Nhiệm vụ của bạn là đọc hiểu tài liệu, trích xuất thông tin chính xác 100%, không suy diễn ngoài dữ kiện được cung cấp. Ưu tiên trình bày dưới dạng bảng biểu so sánh hoặc cấu trúc JSON chuẩn."
+  },
+  "gehihi-assistant": {
+    name: "Gehihi General Assistant",
+    preset: "balanced",
+    temperature: 0.7,
+    topP: 0.9,
+    systemPrompt: "Bạn là Trợ lý AI Gehihi Workspace thông minh, lịch thiệp và hữu ích. Bạn trả lời câu hỏi rõ ràng, đúng trọng tâm bằng tiếng Việt tự nhiên và hỗ trợ người dùng giải quyết công việc hiệu quả."
+  },
+  "gehihi-creative": {
+    name: "Gehihi Creative & Ideation",
+    preset: "creative",
+    temperature: 1.1,
+    topP: 0.95,
+    systemPrompt: "Bạn là Chuyên gia Sáng tạo Ý tưởng và Cố vấn Nội dung. Hãy tư duy đa chiều, liên tưởng phong phú, đề xuất các góc nhìn đột phá, mới lạ và tràn đầy cảm hứng sáng tạo nhưng vẫn giữ tính mạch lạc."
+  },
+  "gehihi-researcher": {
+    name: "Gehihi Academic & Fact-Checker",
+    preset: "custom",
+    temperature: 0.2,
+    topP: 0.2,
+    systemPrompt: "Bạn là Nhà Nghiên cứu Khoa học và Thẩm định Sự thật (Fact-Checking Agent). Bạn luôn xem xét vấn đề dựa trên bằng chứng, đối chiếu đa chiều, nêu rõ các giả định và cảnh báo các rủi ro ngụy biện hoặc suy đoán thiếu căn cứ."
+  }
+};
+function estimateTokensFast(text) {
+  if (!text) return 0;
+  let total = 0;
+  const words = text.trim().split(/\s+/).filter(Boolean);
+  const viRegex = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđĐ]/i;
+  for (const w of words) {
+    if (viRegex.test(w)) {
+      total += 2;
+    } else if (w.length > 8) {
+      total += Math.ceil(w.length / 4);
+    } else {
+      total += 1;
+    }
+  }
+  const punctCount = (text.match(/[,.!?;:()\[\]{}"'\\\/<>@#$%^&*+=~`|_-]/g) || []).length;
+  total += Math.ceil(punctCount * 0.5);
+  return Math.max(1, total);
+}
+function updateTokenEstimator() {
+  const prompt = $("prompt")?.value || "";
+  const promptTokens = prompt ? estimateTokensFast(prompt) : 0;
+  const badge = $("prompt-token-badge");
+  if (badge) {
+    badge.textContent = `~${promptTokens} tokens`;
+    badge.classList.toggle("warn", promptTokens > 4000);
+  }
+  let historyTokens = 0;
+  for (const msg of state.history) {
+    historyTokens += estimateTokensFast(msg.content);
+  }
+  if (state.systemPrompt) {
+    historyTokens += estimateTokensFast(state.systemPrompt);
+  }
+  const totalTokens = historyTokens + promptTokens;
+  const contextLimit = 32000;
+  const pct = Math.min(100, Math.round((totalTokens / contextLimit) * 100));
+  const health = $("context-health");
+  if (health) {
+    health.textContent = `● Context: ~${totalTokens} tok (${pct}%)`;
+    health.classList.toggle("warn", pct >= 60 && pct < 85);
+    health.classList.toggle("danger", pct >= 85);
+  }
+}
+function setPreset(name) {
+  state.preset = name;
+  document.querySelectorAll(".preset-pill").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.preset === name);
+  });
+  if (presets[name]) {
+    state.temperature = presets[name].temperature;
+    state.topP = presets[name].topP;
+    if ($("temp-slider")) $("temp-slider").value = String(state.temperature);
+    if ($("top-p-slider")) $("top-p-slider").value = String(state.topP);
+    if ($("temp-val")) $("temp-val").textContent = state.temperature.toFixed(2);
+    if ($("top-p-val")) $("top-p-val").textContent = state.topP.toFixed(2);
+  }
+}
+function initDecodingControls() {
+  document.querySelectorAll(".preset-pill").forEach((btn) => {
+    btn.addEventListener("click", () => setPreset(btn.dataset.preset));
+  });
+  const toggleBtn = $("toggle-tuning");
+  const drawer = $("decoding-drawer");
+  if (toggleBtn && drawer) {
+    toggleBtn.addEventListener("click", () => {
+      drawer.hidden = !drawer.hidden;
+      toggleBtn.classList.toggle("active", !drawer.hidden);
+    });
+  }
+  const tempSlider = $("temp-slider");
+  if (tempSlider) {
+    tempSlider.addEventListener("input", () => {
+      state.temperature = parseFloat(tempSlider.value);
+      state.preset = "custom";
+      document.querySelectorAll(".preset-pill").forEach((btn) => btn.classList.remove("active"));
+      if ($("temp-val")) $("temp-val").textContent = state.temperature.toFixed(2);
+    });
+  }
+  const topPSlider = $("top-p-slider");
+  if (topPSlider) {
+    topPSlider.addEventListener("input", () => {
+      state.topP = parseFloat(topPSlider.value);
+      state.preset = "custom";
+      document.querySelectorAll(".preset-pill").forEach((btn) => btn.classList.remove("active"));
+      if ($("top-p-val")) $("top-p-val").textContent = state.topP.toFixed(2);
+    });
+  }
+  const sysInput = $("system-prompt-input");
+  if (sysInput) {
+    sysInput.addEventListener("input", () => {
+      state.systemPrompt = sysInput.value;
+      updateTokenEstimator();
+    });
+  }
+  document.querySelectorAll(".activate-persona-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const personaId = btn.dataset.personaId;
+      const persona = builtinPersonas[personaId];
+      if (persona) {
+        state.preset = persona.preset;
+        state.temperature = persona.temperature;
+        state.topP = persona.topP;
+        state.systemPrompt = persona.systemPrompt;
+        if (sysInput) sysInput.value = state.systemPrompt;
+        setPreset(persona.preset);
+        if ($("temp-slider")) $("temp-slider").value = String(state.temperature);
+        if ($("top-p-slider")) $("top-p-slider").value = String(state.topP);
+        if ($("temp-val")) $("temp-val").textContent = state.temperature.toFixed(2);
+        if ($("top-p-val")) $("top-p-val").textContent = state.topP.toFixed(2);
+        updateTokenEstimator();
+        setView("chat");
+        $("prompt").focus();
+        toast(`Đã kích hoạt Model Persona: ${persona.name}`);
+      }
+    });
+  });
+}
 const labels = {
   chat: "Không gian chat",
   models: "Thư viện model",
@@ -228,6 +391,7 @@ function updateControls() {
   $("guide-connect").disabled = working;
   $("prepare-first-chat").disabled = working;
   $("disconnect").disabled = state.connecting;
+  updateTokenEstimator();
 }
 function errorMessage(data, status) {
   if (typeof data?.error === "string") return data.error;
@@ -534,6 +698,7 @@ function resetChat() {
   $("chat-error").hidden = true;
   $("prompt").value = "";
   updateControls();
+  updateTokenEstimator();
 }
 $("new-chat").addEventListener("click", resetChat);
 $("disconnect").addEventListener("click", () => {
@@ -623,7 +788,7 @@ function addMessage(role, text, model = "", pending = false) {
   article.append(avatar, body);
   $("messages").append(article);
   article.scrollIntoView({ block: "nearest" });
-  return { article, content, name };
+  return { article, content, name, meta };
 }
 $("chat-form").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -638,13 +803,26 @@ $("chat-form").addEventListener("submit", async (e) => {
   const pending = addMessage("assistant", "Đang suy nghĩ…", model, true);
   updateControls();
   try {
+    const messages = [];
+    if (state.systemPrompt && state.systemPrompt.trim()) {
+      messages.push({ role: "system", content: state.systemPrompt.trim() });
+    }
+    messages.push(...state.history, { role: "user", content: prompt });
+
+    const payload = {
+      model,
+      messages,
+      temperature: state.temperature,
+      top_p: state.topP,
+      stream: false,
+    };
+    if (state.preset && state.preset !== "custom") {
+      payload.preset = state.preset;
+    }
+
     const data = await request("/openai/v1/chat/completions", {
       method: "POST",
-      body: JSON.stringify({
-        model,
-        messages: [...state.history, { role: "user", content: prompt }],
-        stream: false,
-      }),
+      body: JSON.stringify(payload),
       signal: AbortSignal.any([
         state.controller.signal,
         AbortSignal.timeout(280000),
@@ -655,11 +833,21 @@ $("chat-form").addEventListener("submit", async (e) => {
       throw new Error("Provider chưa trả về nội dung trả lời.");
     pending.content.textContent = content;
     pending.name.textContent = data.model || model;
+    if (data.usage?.total_tokens) {
+      const usageTag = document.createElement("span");
+      usageTag.className = "token-usage-tag";
+      usageTag.textContent = `${data.usage.total_tokens} tokens (${data.usage.completion_tokens || 0} gen)`;
+      pending.meta.append(usageTag);
+    }
     pending.article.classList.remove("pending");
     state.history.push(
       { role: "user", content: prompt },
       { role: "assistant", content },
     );
+    // Sliding window guard: prune oldest turns if history exceeds 24 messages
+    if (state.history.length > 24) {
+      state.history = state.history.slice(-18);
+    }
     $("prompt").value = "";
     state.firstReplyReceived = true;
     renderGuide();
@@ -814,6 +1002,7 @@ $("account-form").addEventListener("submit", event => {
 setInterval(() => { if (!document.hidden && !$("view-accounts").hidden && state.key && !accountActionBusy) void loadAccounts(); }, 15000);
 updateExamples();
 updateControls();
+initDecodingControls();
 renderGuide();
 restoreView();
 refreshStatus();

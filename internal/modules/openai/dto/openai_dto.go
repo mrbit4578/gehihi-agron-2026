@@ -202,8 +202,12 @@ type ChatCompletionRequest struct {
 	Tools         []ToolDefinition        `json:"tools,omitempty"`
 	ToolChoiceRaw json.RawMessage         `json:"tool_choice,omitempty" swagignore:"true"` // @SchemaType object
 	Stream        bool                    `json:"stream,omitempty"`
-	Temperature   float32                 `json:"temperature,omitempty"`
+	Temperature   *float32                `json:"temperature,omitempty"`
+	TopP          *float32                `json:"top_p,omitempty"`
+	TopK          *int                    `json:"top_k,omitempty"`
 	MaxTokens     int                     `json:"max_tokens,omitempty"`
+	SystemPrompt  string                  `json:"system_prompt,omitempty"`
+	Preset        string                  `json:"preset,omitempty"`
 }
 
 func (r ChatCompletionRequest) ToModelMessages() []models.Message {
@@ -334,6 +338,7 @@ type ChatCompletionChunk struct {
 	Created int64         `json:"created"`
 	Model   string        `json:"model"`
 	Choices []ChunkChoice `json:"choices"`
+	Usage   *models.Usage `json:"usage,omitempty"`
 }
 
 // ChunkChoice represents a choice in a chunk

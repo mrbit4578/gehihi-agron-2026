@@ -177,6 +177,61 @@
           ></div>
         </div>
         <div class="composer-wrap">
+          <div class="decoding-toolbar">
+            <div class="preset-group" role="radiogroup" aria-label="Chiến lược sinh mẫu (Decoding Strategy)">
+              <button type="button" class="preset-pill" data-preset="deterministic" title="T=0.1, Top-P=0.1: Deterministic cho Code & Logic">
+                <span class="preset-icon">🎯</span> Chính xác
+              </button>
+              <button type="button" class="preset-pill active" data-preset="balanced" title="T=0.7, Top-P=0.9: Phân bố cân bằng CS229 cho Hội thoại">
+                <span class="preset-icon">⚖</span> Cân bằng
+              </button>
+              <button type="button" class="preset-pill" data-preset="creative" title="T=1.1, Top-P=0.95: Đa dạng hóa token cho Ý tưởng & Sáng tạo">
+                <span class="preset-icon">✨</span> Sáng tạo
+              </button>
+              <button type="button" id="toggle-tuning" class="tuning-toggle-btn" title="Mở bảng điều chỉnh nhiệt độ Softmax và Top-P">
+                <span>⚙ Tinh chỉnh</span>
+              </button>
+            </div>
+            <div class="composer-stats">
+              <span id="prompt-token-badge" class="token-badge" title="Ước lượng Subword/BPE token">~0 tokens</span>
+            </div>
+          </div>
+          <div id="decoding-drawer" class="decoding-drawer" hidden>
+            <div class="drawer-header">
+              <strong>Tham số Decoding & Transformer Alignment</strong>
+              <small class="drawer-formula">CS229: P(w_i) = exp(z_i / T) / ∑ exp(z_j / T)</small>
+            </div>
+            <div class="tuning-grid">
+              <div class="slider-field">
+                <div class="slider-header">
+                  <label for="temp-slider">Temperature (T):</label>
+                  <span id="temp-val" class="param-val">0.70</span>
+                </div>
+                <input type="range" id="temp-slider" min="0" max="2" step="0.05" value="0.7">
+                <div class="slider-ticks">
+                  <span>0.0 (Argmax)</span>
+                  <span>0.7 (Default)</span>
+                  <span>1.8+ (High Var)</span>
+                </div>
+              </div>
+              <div class="slider-field">
+                <div class="slider-header">
+                  <label for="top-p-slider">Top-P (Nucleus):</label>
+                  <span id="top-p-val" class="param-val">0.90</span>
+                </div>
+                <input type="range" id="top-p-slider" min="0" max="1" step="0.05" value="0.9">
+                <div class="slider-ticks">
+                  <span>0.1 (Strict)</span>
+                  <span>0.9 (Standard)</span>
+                  <span>1.0 (Full Tail)</span>
+                </div>
+              </div>
+            </div>
+            <div class="system-prompt-field">
+              <label for="system-prompt-input">Chỉ thị hệ thống (System Prompt / Persona):</label>
+              <textarea id="system-prompt-input" rows="2" placeholder="Ví dụ: Bạn là Kỹ sư Trưởng kiêm Kiến trúc sư Hệ thống..."></textarea>
+            </div>
+          </div>
           <form id="chat-form" class="composer">
             <label for="prompt" class="sr-only">Tin nhắn của bạn</label
             ><textarea
@@ -209,18 +264,127 @@
           <div class="composer-foot">
             <span id="connection-summary"
               >Khóa truy cập chỉ được giữ trong bộ nhớ của tab.</span
-            ><span>Ctrl + Enter để gửi</span>
+            >
+            <div class="foot-meta">
+              <span id="context-health" class="context-health" title="Tải trọng Context Window">● Context: 0%</span>
+              <span>Ctrl + Enter để gửi</span>
+            </div>
           </div>
           <p class="inline-error" id="chat-error" role="alert" hidden></p>
         </div>
       </section>
       <section id="view-models" class="view detail-view" hidden>
-        <span class="eyebrow">MODEL LIBRARY</span>
-        <h1>Đúng model. Đúng quyền truy cập.</h1>
+        <span class="eyebrow">MODEL LIBRARY & PERSONAS</span>
+        <h1>Đúng model. Chuẩn tham số Transformer.</h1>
         <p class="page-description">
-          Danh sách được lấy trực tiếp từ provider sau khi xác thực. Model không
-          được cấp quyền sẽ không xuất hiện.
+          Kết hợp Foundation Models từ Google Gemini với các cấu hình Decoding Strategy chuẩn Stanford CS229 (Temperature, Top-P, Causal Attention) và System Persona tối ưu.
         </p>
+
+        <div class="section-heading">
+          <h2>Mô hình AI Chuyên Sâu (Model AI Personas)</h2>
+          <span class="sub-badge">5 Cấu hình Tối ưu</span>
+        </div>
+        <div class="personas-grid" id="personas-grid">
+          <article class="persona-card" data-persona="gehihi-coder">
+            <div class="persona-header">
+              <span class="persona-icon">💻</span>
+              <div>
+                <h3>Gehihi Coder & Architect</h3>
+                <span class="persona-badge deterministic">T=0.1 · Top-P=0.1 (Argmax Focus)</span>
+              </div>
+            </div>
+            <p>Mô hình AI chuyên trách Lập trình, Debug và Thiết kế Kiến trúc Hệ thống. Triệt tiêu hallucination, bám sát cú pháp và Clean Architecture.</p>
+            <div class="persona-footer">
+              <small>Đề xuất: gemini-4-argon, gemini-2.5-pro</small>
+              <button type="button" class="quiet-button activate-persona-btn" data-persona-id="gehihi-coder">Kích hoạt Model ↗</button>
+            </div>
+          </article>
+
+          <article class="persona-card" data-persona="gehihi-analyst">
+            <div class="persona-header">
+              <span class="persona-icon">📊</span>
+              <div>
+                <h3>Gehihi Data & Logic Analyst</h3>
+                <span class="persona-badge deterministic">T=0.0 · Top-P=0.1 (Strict Greedy)</span>
+              </div>
+            </div>
+            <p>Mô hình AI trích xuất dữ liệu, tổng hợp báo cáo và xuất JSON có cấu trúc. Phân bố xác suất 100% tại Argmax, không suy diễn ngoài dữ kiện.</p>
+            <div class="persona-footer">
+              <small>Đề xuất: gemini-4-argon, gemini-2.5-pro</small>
+              <button type="button" class="quiet-button activate-persona-btn" data-persona-id="gehihi-analyst">Kích hoạt Model ↗</button>
+            </div>
+          </article>
+
+          <article class="persona-card" data-persona="gehihi-assistant">
+            <div class="persona-header">
+              <span class="persona-icon">🤖</span>
+              <div>
+                <h3>Gehihi General Assistant</h3>
+                <span class="persona-badge balanced">T=0.7 · Top-P=0.9 (Softmax Baseline)</span>
+              </div>
+            </div>
+            <p>Trợ lý AI đa năng cho công việc hàng ngày, tóm tắt tài liệu và giao tiếp tự nhiên với phân bố Softmax cân bằng.</p>
+            <div class="persona-footer">
+              <small>Đề xuất: gemini-4-argon, gemini-2.5-flash</small>
+              <button type="button" class="quiet-button activate-persona-btn" data-persona-id="gehihi-assistant">Kích hoạt Model ↗</button>
+            </div>
+          </article>
+
+          <article class="persona-card" data-persona="gehihi-creative">
+            <div class="persona-header">
+              <span class="persona-icon">🎨</span>
+              <div>
+                <h3>Gehihi Creative & Ideation</h3>
+                <span class="persona-badge creative">T=1.1 · Top-P=0.95 (High Variance)</span>
+              </div>
+            </div>
+            <p>Mô hình AI Sáng tạo, Mở rộng Ý tưởng (Brainstorming) và Viết văn với phân bố xác suất mở rộng để đón nhận các token phong phú.</p>
+            <div class="persona-footer">
+              <small>Đề xuất: gemini-2.5-flash, gemini-pro</small>
+              <button type="button" class="quiet-button activate-persona-btn" data-persona-id="gehihi-creative">Kích hoạt Model ↗</button>
+            </div>
+          </article>
+
+          <article class="persona-card" data-persona="gehihi-researcher">
+            <div class="persona-header">
+              <span class="persona-icon">🔬</span>
+              <div>
+                <h3>Gehihi Academic & Fact-Checker</h3>
+                <span class="persona-badge research">T=0.2 · Top-P=0.2 (Rigorous Evidence)</span>
+              </div>
+            </div>
+            <p>Mô hình Nghiên cứu Khoa học và Thẩm định Sự thật. Phân tích thận trọng, nghiêm ngặt về bằng chứng và phản biện logic đa chiều.</p>
+            <div class="persona-footer">
+              <small>Đề xuất: gemini-4-argon, gemini-2.5-pro</small>
+              <button type="button" class="quiet-button activate-persona-btn" data-persona-id="gehihi-researcher">Kích hoạt Model ↗</button>
+            </div>
+          </article>
+        </div>
+
+        <div class="cs229-card">
+          <div class="cs229-header">
+            <span class="cs229-tag">CS229 LECTURE 14 FOUNDATION</span>
+            <h3>Nguyên lý Sinh Mẫu & Điều Chỉnh Phân Bố Xác Suất (Decoding Strategies)</h3>
+          </div>
+          <div class="cs229-body">
+            <p>Mô hình ngôn ngữ Transformer sinh token kế tiếp bằng cách tính logit <code>z_i</code> và đưa qua hàm <code>Softmax(z_i / T)</code>. Sau đó áp dụng kỹ thuật <strong>Nucleus Sampling (Top-P)</strong> để cắt tỉa các token đuôi dài không an toàn:</p>
+            <div class="cs229-matrix">
+              <div class="matrix-item">
+                <strong>T = 0.0 – 0.2 (Greedy / Argmax)</strong>
+                <p>Khối lượng xác suất dồn vào token cao nhất. Hoàn hảo cho Lập trình, Toán học, Trích xuất Schema.</p>
+              </div>
+              <div class="matrix-item">
+                <strong>T = 0.7, Top-P = 0.9 (Cân bằng)</strong>
+                <p>Giữ được sự mượt mà tự nhiên của ngôn ngữ mà không bị lan man hoặc vô nghĩa.</p>
+              </div>
+              <div class="matrix-item">
+                <strong>T = 1.0 – 1.8 (Sáng tạo / Đột phá)</strong>
+                <p>Làm phẳng phân bố xác suất (Flattening distribution), kích hoạt các liên tưởng hiếm gặp cho Brainstorming.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="argon-note">
           <span>✦</span>
           <div>

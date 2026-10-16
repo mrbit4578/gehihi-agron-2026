@@ -102,11 +102,18 @@ type GenerateConfig struct {
 	Files                   []string
 	InputFiles              []InputFile
 	Temperature             float64
+	HasTemperature          bool
+	TopP                    float64
+	HasTopP                 bool
+	TopK                    int
+	HasTopK                 bool
 	MaxTokens               int
 	DownloadGeneratedImages bool
 	Video                   *VideoConfig
 	Canvas                  bool
 	Music                   *MusicConfig
+	SystemPrompt            string
+	DecodingPreset          string
 }
 
 // InputFile is an in-memory file to upload with a generation request.
@@ -129,6 +136,51 @@ type ChatConfig struct {
 func WithModel(model string) GenerateOption {
 	return func(c *GenerateConfig) {
 		c.Model = model
+	}
+}
+
+// WithTemperature sets the sampling temperature (CS229 Lecture 14)
+func WithTemperature(t float64) GenerateOption {
+	return func(c *GenerateConfig) {
+		c.Temperature = t
+		c.HasTemperature = true
+	}
+}
+
+// WithTopP sets the nucleus sampling probability threshold
+func WithTopP(p float64) GenerateOption {
+	return func(c *GenerateConfig) {
+		c.TopP = p
+		c.HasTopP = true
+	}
+}
+
+// WithTopK sets top-k candidate truncation
+func WithTopK(k int) GenerateOption {
+	return func(c *GenerateConfig) {
+		c.TopK = k
+		c.HasTopK = true
+	}
+}
+
+// WithMaxTokens sets maximum completion tokens
+func WithMaxTokens(maxTokens int) GenerateOption {
+	return func(c *GenerateConfig) {
+		c.MaxTokens = maxTokens
+	}
+}
+
+// WithSystemPrompt sets the system instruction for in-context alignment
+func WithSystemPrompt(prompt string) GenerateOption {
+	return func(c *GenerateConfig) {
+		c.SystemPrompt = prompt
+	}
+}
+
+// WithDecodingPreset configures the model with a named CS229 decoding preset
+func WithDecodingPreset(preset string) GenerateOption {
+	return func(c *GenerateConfig) {
+		c.DecodingPreset = preset
 	}
 }
 

@@ -40,6 +40,12 @@ func (s *ClaudeService) ValidateMessage(req dto.MessageRequest) error {
 	if err := common.ValidateMessages(req.Messages); err != nil {
 		return err
 	}
+	if req.MaxTokens < 0 {
+		return fmt.Errorf("max_tokens must be non-negative")
+	}
+	if err := common.ValidateDecodingParameters(req.Temperature, req.TopP, req.TopK); err != nil {
+		return err
+	}
 	_, err := s.client.ResolveModel(req.Model)
 	return err
 }
@@ -65,6 +71,19 @@ func (s *ClaudeService) GenerateMessage(ctx context.Context, req dto.MessageRequ
 	if req.Model != "" {
 		opts = append(opts, providers.WithModel(req.Model))
 	}
+	if req.Temperature != nil {
+		opts = append(opts, providers.WithTemperature(float64(*req.Temperature)))
+	}
+	if req.TopP != nil {
+		opts = append(opts, providers.WithTopP(float64(*req.TopP)))
+	}
+	if req.TopK != nil {
+		opts = append(opts, providers.WithTopK(*req.TopK))
+	}
+	if req.MaxTokens > 0 {
+		opts = append(opts, providers.WithMaxTokens(req.MaxTokens))
+	}
+
 	inputFiles, err := providers.InputFilesFromAttachments(req.Messages)
 	if err != nil {
 		return nil, err
@@ -102,6 +121,12 @@ func (s *ClaudeService) GenerateMessage(ctx context.Context, req dto.MessageRequ
 		resContent = append(resContent, dto.ConfigContent{Type: "text", Text: response.Text})
 	}
 
+	inputTokens := common.EstimateMessagesTokens(req.Messages, req.System.Text)
+	outputTokens := common.EstimateTokens(response.Text)
+	if response.ReasoningText != "" {
+		outputTokens += common.EstimateTokens(response.ReasoningText)
+	}
+
 	return &dto.MessageResponse{
 		ID:         msgID,
 		Type:       "message",
@@ -110,8 +135,8 @@ func (s *ClaudeService) GenerateMessage(ctx context.Context, req dto.MessageRequ
 		Content:    resContent,
 		StopReason: stopReason,
 		Usage: models.Usage{
-			InputTokens:  len(prompt) / 4,
-			OutputTokens: len(response.Text) / 4,
+			InputTokens:  inputTokens,
+			OutputTokens: outputTokens,
 		},
 		Canvases: providers.CanvasFiles(response.Canvases),
 	}, nil

@@ -144,26 +144,57 @@ export function createClient(options = {}) {
         name: typeof m.display_name === "string" ? m.display_name : m.id,
       }));
   }
+  async function personas(signal) {
+    try {
+      const data = await request("model-profiles", { signal });
+      if (Array.isArray(data?.data)) return data.data;
+    } catch {}
+    return [];
+  }
+  async function estimateTokens(
+    { text = "", messages, system_prompt = "" },
+    signal,
+  ) {
+    return await request("tokens/estimate", {
+      body: { text, messages, system_prompt },
+      signal,
+    });
+  }
   return {
     baseURL: base,
     status: (signal) => request("", { publicStatus: true, signal }),
     models,
-    async chat({ model, prompt }, signal) {
+    personas,
+    estimateTokens,
+    async chat(
+      { model, prompt, temperature, top_p, top_k, preset, system_prompt },
+      signal,
+    ) {
       const available = await models(signal);
-      if (!available.some((m) => m.id === model))
+      const personaList = await personas(signal);
+      const isPersona = personaList.some((p) => p.id === model);
+      if (!available.some((m) => m.id === model) && !isPersona)
         throw new Error(
-          "Model chưa có trong danh sách provider. Gọi gehihi_models rồi chọn đúng ID khả dụng.",
+          "Model chưa có trong danh sách provider hoặc danh sách Model Persona. Gọi gehihi_models hoặc gehihi_model_personas rồi chọn đúng ID khả dụng.",
         );
       if (/-music$/.test(model))
         throw new Error(
           "Model âm nhạc cần backend liên tục. Chọn model chat văn bản.",
         );
+      const body = {
+        model,
+        messages: [{ role: "user", content: prompt }],
+        stream: false,
+      };
+      if (typeof temperature === "number") body.temperature = temperature;
+      if (typeof top_p === "number") body.top_p = top_p;
+      if (typeof top_k === "number") body.top_k = top_k;
+      if (typeof preset === "string" && preset.trim()) body.preset = preset.trim();
+      if (typeof system_prompt === "string" && system_prompt.trim())
+        body.system_prompt = system_prompt.trim();
+
       const data = await request("chat/completions", {
-        body: {
-          model,
-          messages: [{ role: "user", content: prompt }],
-          stream: false,
-        },
+        body,
         signal,
       });
       const content = data?.choices?.[0]?.message?.content;
@@ -176,6 +207,7 @@ export function createClient(options = {}) {
         model:
           typeof data.model === "string" && data.model ? data.model : model,
         content,
+        usage: data.usage || null,
       };
     },
   };

@@ -7,13 +7,16 @@ import (
 
 // MessageRequest represents the specialized Claude request body
 type MessageRequest struct {
-	Model      string                 `json:"model"`
-	MaxTokens  int                    `json:"max_tokens"`
-	Messages   []models.Message       `json:"messages"`
-	System     AnthropicSystemContent `json:"system,omitempty"`
-	Stream     bool                   `json:"stream,omitempty"`
-	Tools      []Tool                 `json:"tools,omitempty"`
-	ToolChoice *ToolChoice            `json:"tool_choice,omitempty"`
+	Model       string                 `json:"model"`
+	MaxTokens   int                    `json:"max_tokens"`
+	Messages    []models.Message       `json:"messages"`
+	System      AnthropicSystemContent `json:"system,omitempty"`
+	Stream      bool                   `json:"stream,omitempty"`
+	Tools       []Tool                 `json:"tools,omitempty"`
+	ToolChoice  *ToolChoice            `json:"tool_choice,omitempty"`
+	Temperature *float32               `json:"temperature,omitempty"`
+	TopP        *float32               `json:"top_p,omitempty"`
+	TopK        *int                   `json:"top_k,omitempty"`
 }
 
 // Tool represents a tool available to the model

@@ -749,6 +749,21 @@ func (c *Client) generateContent(ctx context.Context, prompt string, metadata []
 			result.Model += CanvasModelSuffix
 			result.RequestedModel += CanvasModelSuffix
 		}
+		if result.Metadata == nil {
+			result.Metadata = make(map[string]any)
+		}
+		if config.HasTemperature {
+			result.Metadata["temperature"] = config.Temperature
+		}
+		if config.HasTopP {
+			result.Metadata["top_p"] = config.TopP
+		}
+		if config.HasTopK {
+			result.Metadata["top_k"] = config.TopK
+		}
+		if config.DecodingPreset != "" {
+			result.Metadata["decoding_preset"] = config.DecodingPreset
+		}
 		c.log.Debug("GenerateContent timing",
 			zap.Duration("gemini_server_rtt", httpDuration),
 			zap.Duration("parse_duration", parseDuration),

@@ -66,3 +66,6 @@ tmp/
 examples/generated_video*.mp4
 examples/generated_canvas_*
 examples/generated_music_*
+
+# local standalone tools & video binaries
+DUAN VIDEO 2026/

@@ -72,6 +72,28 @@ func ValidateGenerationRequest(model string, maxTokens int, temperature float32)
 	return nil
 }
 
+// ValidateDecodingParameters validates generation decoding parameters (temperature, top_p, top_k)
+// according to CS229 Lecture 14 and foundational LLM decoding boundaries.
+func ValidateDecodingParameters(temperature *float32, topP *float32, topK *int) error {
+	if temperature != nil {
+		if *temperature < 0 || *temperature > 2 {
+			return fmt.Errorf("temperature must be between 0 and 2")
+		}
+	}
+	if topP != nil {
+		if *topP < 0 || *topP > 1 {
+			return fmt.Errorf("top_p must be between 0 and 1")
+		}
+	}
+	if topK != nil {
+		if *topK < 0 {
+			return fmt.Errorf("top_k must be non-negative")
+		}
+	}
+	return nil
+}
+
+
 // MarshalJSONSafely marshals JSON and logs errors instead of silently failing
 func MarshalJSONSafely(log *zap.Logger, v interface{}) []byte {
 	data, err := json.Marshal(v)
