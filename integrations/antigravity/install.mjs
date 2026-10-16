@@ -10,9 +10,27 @@ export async function install({
   baseURL = defaultBaseURL,
   envFile = defaultEnvFile,
 } = {}) {
+  // Tránh lỗi Windows khi đường dẫn workspace có khoảng trắng (space):
+  // Tạo file entry.mjs tại ~/.gemini/antigravity/mcp/gehihi/ (đường dẫn không chứa space)
+  const entrypointDir = path.join(
+    path.resolve(home),
+    ".gemini",
+    "antigravity",
+    "mcp",
+    "gehihi",
+  );
+  await mkdir(entrypointDir, { recursive: true });
+  const entrypointFile = path.join(entrypointDir, "entry.mjs");
+  const targetServerUrl = new URL("./server.mjs", import.meta.url).href;
+  await writeFile(
+    entrypointFile,
+    `import { pathToFileURL } from "node:url";\nawait import(${JSON.stringify(targetServerUrl)});\n`,
+    "utf8",
+  );
+
   const entry = {
     command: process.execPath,
-    args: [fileURLToPath(new URL("./server.mjs", import.meta.url))],
+    args: [entrypointFile],
     env: {
       GEHIHI_BASE_URL: validateBaseURL(baseURL),
       GEHIHI_ENV_FILE: path.resolve(envFile),
