@@ -57,18 +57,19 @@ Antigravity IDE 1.107.0 đang có trên máy không cung cấp API serving qua C
 
 Chat đồng bộ, model discovery và các protocol chat được giữ lại. Video, âm nhạc, tạo ảnh qua endpoint riêng và deep research bị chặn với HTTP 501 trong chế độ serverless: các job lưu trong RAM và vòng lặp nền không bền qua nhiều function instance. Đuôi model `-music` cũng bị chặn. Chạy backend Docker liên tục nếu cần những chức năng này. Cookie cache ở Vercel nằm trong thư mục tạm, không phải nơi lưu trữ lâu dài. Giới hạn request trong RAM áp dụng theo instance; thêm Vercel Firewall nếu cần quota chung giữa nhiều instance.
 
-## Chạy local
+## Khởi chạy 1-Click (Khuyên Dùng)
+
+Chỉ cần **click đúp vào file `chay gehihi2026.bat`** (hoặc shortcut **Chay Gehihi 2026** trên màn hình Desktop) để tự động khởi chạy toàn bộ hệ thống:
+1. Tự động kiểm tra môi trường, nạp cấu hình `.env.local` và sao chép sẵn `API_KEY` vào Clipboard.
+2. Tự động đồng bộ và kích hoạt cấu hình MCP cho Antigravity IDE (`http://127.0.0.1:4981/openai/v1`).
+3. Khởi động **Browser Relay Daemon** (cổng 54985) và **Gehihi Gateway Backend** (cổng 4981).
+4. Tự động mở giao diện web Dashboard trên trình duyệt.
+
+> Hoặc gõ lệnh trong terminal: `npm start` hoặc `npm run chay`.
+
+## Chạy local thủ công
 
 Cần Go 1.27.2+ và Node.js 22+. Trong máy hiện tại, Go đã được đặt tại `../tools/go/bin/`.
-
-```powershell
-if (-not (Test-Path .env.local)) { Copy-Item .env.example .env.local }
-npm ci
-npm run build
-go run ./cmd/server
-```
-
-Hoặc chạy `powershell -File scripts/run-local.ps1`, script tự tìm Go trên PATH hoặc trong thư mục tools của workspace này.
 
 Mở `http://127.0.0.1:4981`. `API_KEY` trong `.env.local` là khóa workspace, không phải khóa Google. Tab chỉ giữ khóa trong RAM, không sử dụng localStorage. Cookie Google không đi qua giao diện web.
 

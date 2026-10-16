@@ -9,6 +9,8 @@
     "check:vercel": "node scripts/check-vercel-go.mjs",
     "dev": "go run ./cmd/server",
     "test": "go test ./...",
+    "start": "cmd /c chay-gehihi2026.bat",
+    "chay": "cmd /c chay-gehihi2026.bat",
     "deploy": "npx vercel@64.0.2 --prod --scope mrbit4578-4403s-projects"
   },
   "engines": {
